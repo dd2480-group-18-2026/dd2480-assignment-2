@@ -6,8 +6,7 @@ public class ContinuousIntegrationServer {
     public static void main(String[] args) throws Exception {
         Server server = new Server(PORT);
 
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
+        ServletContextHandler context = new ServletContextHandler("/");
 
         // Register servlets
         context.addServlet(RootServlet.class, "/");
