@@ -40,6 +40,39 @@
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
+    <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>6.0.0</version>
+        <scope>test</scope>
+    </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
+    <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>3.0</version>
+        <scope>test</scope>
+    </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server -->
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>12.1.6</version>
+    </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+    <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>6.1.0</version>
+    </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/org.eclipse.jetty.ee10/jetty-ee10-servlet -->
+    <dependency>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-servlet</artifactId>
+        <version>12.1.6</version>
+        <scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -62,6 +95,16 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.3.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <executions>
+            <execution><goals><goal>java</goal></goals></execution>
+          </executions>
+          <configuration>
+            <mainClass>ContinuousIntegrationServer</mainClass>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
