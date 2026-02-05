@@ -1,3 +1,4 @@
+package domain;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 public class Storage {
     private Connection databaseConnection;
     
-    Storage(String databasePath) throws IOException {
+    public Storage(String databasePath) throws IOException {
         var sqlite_file = new File(databasePath);
 
         if (!sqlite_file.exists()) {

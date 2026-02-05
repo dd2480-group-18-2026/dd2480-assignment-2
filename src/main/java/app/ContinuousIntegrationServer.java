@@ -1,10 +1,12 @@
+package app;
 import org.eclipse.jetty.server.Server;
+
+import domain.Storage;
 
 import java.io.IOException;
 
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 
-import app.AppState;
 import servlets.RootServlet;
 import servlets.RunServlet;
 
