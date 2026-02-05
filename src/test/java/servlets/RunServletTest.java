@@ -35,7 +35,9 @@ public class RunServletTest {
             "head_commit": {
                 "id": "ABC123"
             },
-            "repository": "someUrl"
+                "repository": {
+                    "clone_url": "someUrl"
+                }
         }
     """;
 
@@ -44,7 +46,9 @@ public class RunServletTest {
             "head_commit": {
                 "id": "ABC123"
             },
-            "repositor": "someUrl"
+                "repositor": {
+                    "clone_url": "someUrl"
+                }
         }
     """;
 
@@ -68,8 +72,8 @@ public class RunServletTest {
         servlet.doPost(request, response);
 
         assertEquals(1, appState.getQueue().size());
-        GitHubEvent event = appState.getQueue().poll();
-        assertEquals("someUrl", event.getRepository());
+        GitHubEvent event = appState.getQueue().peek();
+        assertEquals("someUrl", event.getRepository().getUrl());
         assertEquals("ABC123", event.getHeadCommit().getSha());
     }
 

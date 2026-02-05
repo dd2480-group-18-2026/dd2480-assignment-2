@@ -8,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class GitHubEvent {
 
     private final Commit headCommit;
-    private final String repository;
+    private final Repository repository;
 
     @JsonCreator
     public GitHubEvent(
         @JsonProperty(value = "head_commit", required = true) Commit headCommit,
-        @JsonProperty(value = "repository", required = true) String repository
+        @JsonProperty(value = "repository", required = true) Repository repository
     ) {
         this.headCommit = headCommit;
         this.repository = repository;
@@ -23,7 +23,7 @@ public class GitHubEvent {
         return headCommit;
     }
 
-    public String getRepository() {
+    public Repository getRepository() {
         return repository;
     }
 
@@ -38,6 +38,20 @@ public class GitHubEvent {
 
         public String getSha() {
             return sha;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Repository {
+        private final String url;
+
+        @JsonCreator
+        public Repository(@JsonProperty(value = "clone_url", required = true) String url) {
+            this.url = url;
+        }
+
+        public String getUrl() {
+            return url;
         }
     }
 }
