@@ -8,6 +8,8 @@ public class ContinuousIntegrationServer {
 
         ServletContextHandler context = new ServletContextHandler("/");
 
+        var storage = new Storage("build_history.sqlite");
+
         // Register servlets
         context.addServlet(RootServlet.class, "/");
 
