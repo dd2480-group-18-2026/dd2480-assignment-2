@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Enumeration;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,29 +32,45 @@ public class RunServletTest {
 
     private RunServlet servlet;
     private static String validRequestBody = """
-        {
-            "head_commit": {
-                "id": "ABC123"
-            },
+            {
+                "head_commit": {
+                    "id": "ABC123"
+                },
                 "repository": {
                     "clone_url": "someUrl"
                 }
-        }
-    """;
-
+            }
+            """;
     private static String invalidRequestBody = """
-        {
-            "head_commit": {
-                "id": "ABC123"
-            },
+            {
+                "head_commit": {
+                    "id": "ABC123"
+                },
                 "repositor": {
                     "clone_url": "someUrl"
                 }
-        }
-    """;
+            }
+            """;
 
     private static void setRequestBody(String body) throws IOException {
         when(request.getReader()).thenReturn(new BufferedReader(new StringReader(body)));
+    }
+
+    private static void setGitHubEventHeader(String event) throws IOException {        
+        Enumeration<String> strEnumeration = new Enumeration<String>() {
+
+            @Override
+            public boolean hasMoreElements() {
+                return true;
+            }
+
+            @Override
+            public String nextElement() {
+                return event;
+            }
+            
+        };
+        when(request.getHeaders("X-GitHub-Event")).thenReturn(strEnumeration);
     }
 
 
@@ -66,6 +83,7 @@ public class RunServletTest {
     @Test
     void doPost_addsEventToQueue_whenValidRequest() throws IOException {
         setRequestBody(validRequestBody);
+        setGitHubEventHeader("push");
         StringWriter responseWriter = new StringWriter();
         when(response.getWriter()).thenReturn(new PrintWriter(responseWriter));
 
@@ -78,8 +96,27 @@ public class RunServletTest {
     }
 
     @Test
-    void doPost_doesNotaddEventToQueue_whenInvalidRequest() throws IOException {
+    void doPost_doesNotaddEventToQueue_whenInvalidRequestForPushEvent() throws IOException {
         setRequestBody(invalidRequestBody);
+        setGitHubEventHeader("push");
+
+        servlet.doPost(request, response);
+
+        assertEquals(0, appState.getQueue().size());
+    }
+    
+    @Test
+    void doPost_doesNotaddEventToQueue_whenPingEvent() throws IOException {
+        setGitHubEventHeader("ping");
+
+        servlet.doPost(request, response);
+
+        assertEquals(0, appState.getQueue().size());
+    }
+
+    @Test
+    void doPost_doesNotaddEventToQueue_whenNotPingOrPushEvent() throws IOException {
+        setGitHubEventHeader("merge");
 
         servlet.doPost(request, response);
 

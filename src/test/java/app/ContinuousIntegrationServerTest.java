@@ -13,7 +13,28 @@ import org.junit.jupiter.api.BeforeAll;
 public class ContinuousIntegrationServerTest {
 
     private static final int PORT = 8098;
+    private static final String WEBHOOK_HEADER_NAME = "X-GitHub-Event";
     private static ContinuousIntegrationServer server;
+    private static final String validWebhookBody = """
+            {
+                "head_commit": {
+                    "id": "ABC123"
+                },
+                "repository": {
+                    "clone_url": "someUrl"
+                }
+            }
+            """;
+    private static final String invalidWebhookBody = """
+            {
+                "head_commit": {
+                    "id": "ABC123"
+                },
+                "repositor": {
+                    "clone_url": "someUrl"
+                }
+            }
+            """;
 
     @BeforeAll
     private static void setup() throws Exception {
@@ -28,23 +49,6 @@ public class ContinuousIntegrationServerTest {
 
     static { RestAssured.baseURI = "http://localhost:" + PORT; }
 
-    private static String validWebhookBody = """
-            {
-                "head_commit": {
-                    "id": "ABC123"
-                },
-                "repository": "someUrl"
-            }
-            """;
-
-    private static String invalidWebhookBody = """
-            {
-                "head_commit": {
-                    "id": "ABC123"
-                },
-                "repositor": "someUrl"
-            }
-            """;
 
     @Test
     void getRoot_returnsOkStatusAndStringMessage() {
@@ -55,8 +59,9 @@ public class ContinuousIntegrationServerTest {
     }
 
     @Test
-    void postRun_returnsAcceptedStatusAndStringMessage_whenValidRequest() {
+    void postRun_returnsAcceptedStatusAndStringMessage_whenValidPushEventRequest() {
         RestAssured.with()
+                   .header(WEBHOOK_HEADER_NAME, "push")
                    .body(validWebhookBody)
                    .when()
                    .request("POST", "/run")
@@ -66,13 +71,32 @@ public class ContinuousIntegrationServerTest {
     }
 
     @Test
-    void postRun_returnsBadRequestStatus_whenBadJson() {
+    void postRun_returnsBadRequestStatus_whenBadJsonPushEvent() {
 
         RestAssured.with()
+                   .header(WEBHOOK_HEADER_NAME, "push")
                    .body(invalidWebhookBody)
                    .when()
                    .request("POST", "/run")
                    .then()
                    .statusCode(400);
+    }
+
+    @Test
+    void postRun_returnsOkStatus_whenPingEventRequest() {
+        RestAssured.with().header(WEBHOOK_HEADER_NAME, "ping")
+                   .when()
+                   .request("POST", "/run")
+                   .then()
+                   .statusCode(200);
+    }
+
+    @Test
+    void postRun_returnsNotImplementedStatus_whenNotPingOrPushEvent() {
+        RestAssured.with().header(WEBHOOK_HEADER_NAME, "merge")
+                   .when()
+                   .request("POST", "/run")
+                   .then()
+                   .statusCode(501);
     }
 }
