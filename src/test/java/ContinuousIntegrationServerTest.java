@@ -1,17 +1,31 @@
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.RestAssured;
 
 import static org.hamcrest.Matchers.containsString;
 
+import org.junit.jupiter.api.BeforeAll;
 /**
  * Unit test for simple App.
  */
 public class ContinuousIntegrationServerTest {
 
-    static { RestAssured.baseURI = "http://localhost:8098"; }
+    private static final int PORT = 8098;
+    private static ContinuousIntegrationServer server;
+
+    @BeforeAll
+    private static void setup() throws Exception {
+        server = new ContinuousIntegrationServer(PORT);
+        server.start();
+    }
+
+    @AfterAll
+    private static void shutdown() throws Exception {
+        server.stop();
+    }
+
+    static { RestAssured.baseURI = "http://localhost:" + PORT; }
 
     @Test
     void getRoot_returnsOkStatusAndStringMessage() {
@@ -19,5 +33,5 @@ public class ContinuousIntegrationServerTest {
                    .then()
                    .statusCode(200)
                    .body(containsString("Hello from root endpoint!"));
-    }
+    }   
 }
