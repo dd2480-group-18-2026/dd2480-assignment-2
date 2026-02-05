@@ -73,6 +73,13 @@
         <version>12.1.6</version>
         <scope>compile</scope>
     </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+    <dependency>
+        <groupId>org.xerial</groupId>
+        <artifactId>sqlite-jdbc</artifactId>
+        <version>3.51.1.0</version>
+        <scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -103,7 +110,7 @@
             <execution><goals><goal>java</goal></goals></execution>
           </executions>
           <configuration>
-            <mainClass>ContinuousIntegrationServer</mainClass>
+            <mainClass>Main</mainClass>
           </configuration>
         </plugin>
         <plugin>
