@@ -27,11 +27,51 @@ public class ContinuousIntegrationServerTest {
 
     static { RestAssured.baseURI = "http://localhost:" + PORT; }
 
+    private static String validWebhookBody = """
+            {
+                "head_commit": {
+                    "id": "ABC123"
+                },
+                "repository": "someUrl"
+            }
+            """;
+
+    private static String invalidWebhookBody = """
+            {
+                "head_commit": {
+                    "id": "ABC123"
+                },
+                "repositor": "someUrl"
+            }
+            """;
+
     @Test
     void getRoot_returnsOkStatusAndStringMessage() {
         RestAssured.get("/")
                    .then()
                    .statusCode(200)
                    .body(containsString("Hello from root endpoint!"));
-    }   
+    }
+
+    @Test
+    void postRun_returnsAcceptedStatusAndStringMessage_whenValidRequest() {
+        RestAssured.with()
+                   .body(validWebhookBody)
+                   .when()
+                   .request("POST", "/run")
+                   .then()
+                   .statusCode(202)
+                   .body(containsString("Run triggered!"));
+    }
+
+    @Test
+    void postRun_returnsBadRequestStatus_whenBadJson() {
+
+        RestAssured.with()
+                   .body(invalidWebhookBody)
+                   .when()
+                   .request("POST", "/run")
+                   .then()
+                   .statusCode(400);
+    }
 }
