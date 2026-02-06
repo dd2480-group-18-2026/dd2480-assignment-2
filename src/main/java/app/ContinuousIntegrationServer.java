@@ -1,14 +1,22 @@
+package app;
 import org.eclipse.jetty.server.Server;
+
+import domain.Storage;
 
 import java.io.IOException;
 
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+
+import servlets.RootServlet;
+import servlets.RunServlet;
 
 public class ContinuousIntegrationServer { 
     private static Server server;
+    private static AppState appState;
 
     public ContinuousIntegrationServer(int port) {
         server = new Server(port);
+        appState = new AppState();
     
         ServletContextHandler context = new ServletContextHandler("/");
 
@@ -20,7 +28,8 @@ public class ContinuousIntegrationServer {
 
         // Register servlets
         context.addServlet(RootServlet.class, "/");
-    
+        context.addServlet(new RunServlet(appState), "/run");
+
         server.setHandler(context);
     }
  
