@@ -131,12 +131,16 @@ public class GitHubChecksClientTest {
     @Test
     void updateCheckRun_throwsExceptionWhenFailedResponse() throws Exception {
         String errorBody = "{\"error\": \"this is error\"";
-        server.takeRequest();
+        server.shutdown();
+        server = new MockWebServer();
+        server.start();
         server.enqueue(new MockResponse().setResponseCode(404).setBody(errorBody));
+        url = server.url("/");
+        checksClient = new GitHubChecksClient(auth, url.toString());
+        
         Exception exception = assertThrows(RuntimeException.class, () -> {
 
             checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, RUN_ID);
-            server.takeRequest();
         });
 
         assertEquals(errorBody, exception.getMessage());;
