@@ -7,12 +7,14 @@ import java.io.IOException;
 
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 
+import servlets.BuildServlet;
 import servlets.RootServlet;
 import servlets.RunServlet;
 
 public class ContinuousIntegrationServer { 
     private static Server server;
     private static AppState appState;
+    private Storage storage;
 
     public ContinuousIntegrationServer(int port) {
         server = new Server(port);
@@ -21,7 +23,7 @@ public class ContinuousIntegrationServer {
         ServletContextHandler context = new ServletContextHandler("/");
 
         try {
-            var storage = new Storage("build_history.sqlite");
+            storage = new Storage("build_history.sqlite");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -29,6 +31,7 @@ public class ContinuousIntegrationServer {
         // Register servlets
         context.addServlet(RootServlet.class, "/");
         context.addServlet(new RunServlet(appState), "/run");
+        context.addServlet(new BuildServlet(storage), "/builds/*");
 
         server.setHandler(context);
     }
