@@ -5,7 +5,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Storage {
     private Connection databaseConnection;
@@ -35,13 +37,16 @@ public class Storage {
 
     public void storeBuildResult(BuildResult buildResults) {
         String sql = """
-            INSERT INTO history(build_nb, commit_sha, build_output)
-            VALUES(NULL, ?, ?)
+            INSERT INTO history(build_idx, date, commit_sha, build_output, success)
+            VALUES(NULL, ?, ?, ?, ?)
             """;
 
         try(var stmt = this.databaseConnection.prepareStatement(sql)) {
-            stmt.setString(1, buildResults.commitSHA);
-            stmt.setString(2, buildResults.buildOutput);
+            stmt.setString(1, buildResults.date.toInstant().toString());
+
+            stmt.setString(2, buildResults.commitSHA);
+            stmt.setString(3, buildResults.buildOutput);
+            stmt.setBoolean(4, buildResults.success);
             stmt.execute();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -50,7 +55,7 @@ public class Storage {
 
     public ArrayList<Integer> getBuildIndexes() {
         String sql = """
-                SELECT build_nb
+                SELECT build_idx
                 FROM history
                 """;
 
@@ -72,7 +77,7 @@ public class Storage {
     public BuildResult getBuildResult(Integer buildIndex) throws SQLException {
         var sql = """
                 SELECT * FROM history
-                WHERE build_nb = (?);
+                WHERE build_idx = (?);
                 """;
         
         var stmt = this.databaseConnection.prepareStatement(sql);
@@ -80,7 +85,10 @@ public class Storage {
         var resultSet = stmt.executeQuery();
 
         if (resultSet.next()) {
-            return new BuildResult(resultSet.getString("commit_sha"), resultSet.getString("build_output"));
+            Instant instant = Instant.parse(resultSet.getString("date"));
+            Date date = Date.from(instant);
+
+            return new BuildResult(resultSet.getString("commit_sha"), date, resultSet.getString("build_output"), resultSet.getBoolean("success"));
         } else {
             throw new SQLException(String.format("Invalid build index: %d", buildIndex));
         }
@@ -89,9 +97,11 @@ public class Storage {
     private void initializeDatabase() {
         var sqlStatement = """
             CREATE TABLE IF NOT EXISTS history (
-            build_nb INTEGER PRIMARY KEY,
+            build_idx INTEGER PRIMARY KEY,
+            date TEXT NOT NULL,
             commit_sha TEXT NOT NULL,
-            build_output TEXT NOT NULL
+            build_output TEXT NOT NULL,
+            success BOOLEAN NOT NULL
             );
             """;
 
