@@ -14,7 +14,7 @@ class CleanupTest {
     Path tempDir;
 
     @Test
-    void deleteRecursively_deletesDirectoryTree() throws Exception {
+    void deleteRecursively_whenDirectoryTreeExists_deletesAllFilesAndDirectories() throws Exception {
         Path root = Files.createDirectory(tempDir.resolve("workspace"));
         Path nested = Files.createDirectories(root.resolve("a/b/c"));
         Files.writeString(root.resolve("root.txt"), "hello");
@@ -29,7 +29,7 @@ class CleanupTest {
     }
 
     @Test
-    void deleteRecursively_noopOnMissingPath() throws Exception {
+    void deleteRecursively_whenPathDoesNotExist_doesNothing() throws Exception {
         Path missing = tempDir.resolve("does-not-exist");
         assertFalse(Files.exists(missing));
 
@@ -37,7 +37,7 @@ class CleanupTest {
     }
 
     @Test
-    void deleteRecursively_noopOnNull() throws Exception {
+    void deleteRecursively_whenPathIsNull_doesNothing() throws Exception {
         Cleanup.deleteRecursively(null);
     }
 }
