@@ -36,6 +36,13 @@
         <version>4.12.0</version>
         <scope>compile</scope>
     </dependency>
+    <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>mockwebserver</artifactId>
+        <version>4.12.0</version>
+        <scope>test</scope>
+    </dependency>
+
     <!-- Source: https://mvnrepository.com/artifact/com.auth0/java-jwt -->
     <dependency>
         <groupId>com.auth0</groupId>

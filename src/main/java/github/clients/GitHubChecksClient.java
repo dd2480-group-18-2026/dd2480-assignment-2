@@ -14,8 +14,8 @@ import okhttp3.Response;
 
 public class GitHubChecksClient {
 
-    private final OkHttpClient client;
-    private final ObjectMapper mapper;
+    private static final OkHttpClient client = new OkHttpClient();
+    private static final ObjectMapper mapper = new ObjectMapper();
     private final String baseUrl;
     private final GitHubAuth auth;
 
@@ -33,19 +33,13 @@ public class GitHubChecksClient {
         String baseUrl
     ) throws IOException {
         this.auth = new GitHubAuth(appId, installationId, privateKeyPath);
-        client = new OkHttpClient();
-        mapper = new ObjectMapper();
         this.baseUrl = baseUrl;
     }
 
     GitHubChecksClient(
-        OkHttpClient client,
-        ObjectMapper mapper,
         GitHubAuth auth,
         String baseUrl
     ) {
-        this.client = client;
-        this.mapper = mapper;
         this.auth = auth;
         this.baseUrl = baseUrl;
     }
