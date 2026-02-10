@@ -8,51 +8,112 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import domain.GitHubEvent.Repository;
+import domain.GitHubEvent.Commit;
+import tools.Cleanup;
+
 
 public class CiRunner {
-	public CiRunner(String repoURL, String repoLOC) throws IOException, InterruptedException {
-		cloneRepo(repoURL, repoLOC);
-		compileRepo(repoLOC);
-		
-		File file = new File(repoLOC);
-		deleteDir(file);
+	private final String repoURL;
+	private final String commitHash;
+	private final String repoLOC = "./";
+
+	public CiRunner(Repository repo, Commit commit) throws IOException {
+		this.repoURL = repo.getUrl();
+		this.commitHash = commit.getSha();
 	}
 
-	private boolean cloneRepo(String repoURL, String repoLOC) throws IOException, InterruptedException {
-		ProcessBuilder cloneBuilder = new ProcessBuilder("git", "clone", repoURL, repoLOC);
-		cloneBuilder.redirectErrorStream(true);
-		Process cloneProcess = cloneBuilder.start();
+	/**
+	 * Runs the CI service
+	 * 
+	 * @return True if all actions succeed, false otherwise
+	 * @throws IOException When temporary files created could not be fully deleted
+	 */
+	public boolean run() throws IOException {
+		boolean cloneSuccess = false;
+		boolean getCommitSuccess = false;
+		boolean compileSucess = false; 
 
-		int result = cloneProcess.waitFor();
-		if (result == 0) {
+		cloneSuccess = cloneRepo(repoURL, repoLOC);
+		getCommitSuccess = getCommit(repoLOC, commitHash);
+		compileSucess = compileRepo(repoLOC);
+
+		Path path = Paths.get(repoLOC);
+		try {
+			Cleanup.deleteRecursively(path);
+		} catch (IOException e) {
+			System.err.println("Error deleting temporary files");
+			throw new IOException();
+		}
+
+		if (cloneSuccess && getCommitSuccess && compileSucess) {
 			return true;
+		}
+		else {
+			if (!cloneSuccess) System.out.println("Clone failure");
+			if (!cloneSuccess) System.out.println("Get commit failure");
+			if (!cloneSuccess) System.out.println("Compile failure");
 		}
 		return false;
 	}
 
-	private void compileRepo(String repoLOC) throws IOException, InterruptedException {
-		String mavenLOC = repoLOC + "/pom.xml";
-		ProcessBuilder compileBuilder = new ProcessBuilder("mvn.cmd", "compile", "-f", mavenLOC);
-		compileBuilder.redirectErrorStream(true);
-		Process cloneProcess = compileBuilder.start();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));
-		int res = cloneProcess.waitFor();
-		System.out.println(res);
-		String line;
-		while((line = reader.readLine()) != null) {
-			System.out.println(line);
-		}
-	}
+	private boolean cloneRepo(String repoURL, String repoLOC) {
+		try {
+			ProcessBuilder cloneBuilder = new ProcessBuilder("git", "clone", repoURL, repoLOC);
+			cloneBuilder.redirectErrorStream(true);
+			Process cloneProcess = cloneBuilder.start();
 
-	private void deleteDir(File file) {
-		File[] contents = file.listFiles();
-		if (contents != null) {
-			for (File f : contents) {
-				if (! Files.isSymbolicLink(f.toPath())) {
-					deleteDir(f);
-				}
+			int result = cloneProcess.waitFor();
+			if (result == 0) {
+				return true;
 			}
 		}
-		file.delete();
+		catch (IOException | InterruptedException e) {
+			System.err.println("Error cloning");
+			return false;
+		}
+		return false;
+	} 
+
+	private boolean getCommit(String repoLOC, String commitHash) {
+		try {
+			ProcessBuilder checkoutBuilder = new ProcessBuilder("git", "switch", "--detach", commitHash);
+			checkoutBuilder.redirectErrorStream(true);
+			Process checkoutProcess = checkoutBuilder.start();
+
+			int result = checkoutProcess.waitFor();
+			if (result == 0) {
+				return true;
+			}
+		}
+		catch (IOException | InterruptedException e) {
+			System.err.println("Error getting commit");
+			return false;
+		}
+		return false;
+	} 
+
+
+	private boolean compileRepo(String repoLOC) {
+		try {
+			String mavenLOC = repoLOC + "/pom.xml";
+			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "compile", "-f", mavenLOC);
+			compileBuilder.redirectErrorStream(true);
+			Process cloneProcess = compileBuilder.start();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));
+
+			int result = cloneProcess.waitFor();
+			String line;
+			while((line = reader.readLine()) != null) {
+				System.out.println(line);
+			} 
+			if (result == 0) {
+				return true;
+			}
+		} catch (IOException | InterruptedException e) {
+			System.err.println("Error compiling");
+			return false;
+		}
+		return false;
 	}
 }
