@@ -1,10 +1,9 @@
 import app.ContinuousIntegrationServer;
 
 public class Main {
-    private static final int PORT = 8080 + 18;
-
     public static void main(String[] args) throws Exception {
-        ContinuousIntegrationServer server = new ContinuousIntegrationServer(PORT);
+        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8098"));
+        ContinuousIntegrationServer server = new ContinuousIntegrationServer(port);
         server.start();
         server.join();
     }
