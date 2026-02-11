@@ -16,6 +16,13 @@ public class CiCoordinator implements Runnable {
     private final GitHubChecksClient client;
     private final String baseBuildUrl;
 
+    /**
+     * 
+     * @param gitHubEvents
+     * @param storage
+     * @param client
+     * @param baseBuildUrl
+     */
     public CiCoordinator(
         BlockingQueue<GitHubEvent> gitHubEvents, 
         Storage storage, 

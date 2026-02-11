@@ -1,7 +1,9 @@
 package app;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import github.clients.GitHubChecksClient;
 import io.restassured.RestAssured;
 
 import static org.hamcrest.Matchers.containsString;
@@ -40,9 +42,12 @@ public class ContinuousIntegrationServerTest {
             }
             """;
 
+    @Mock
+    private static GitHubChecksClient client;
+
     @BeforeAll
     private static void setup() throws Exception {
-        server = new ContinuousIntegrationServer(PORT);
+        server = new ContinuousIntegrationServer(PORT, client);
         server.start();
     }
 
