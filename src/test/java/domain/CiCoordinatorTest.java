@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -28,11 +29,15 @@ public class CiCoordinatorTest {
         new GitHubEvent.Commit("ABC123"), 
         new GitHubEvent.Repository("repoUrl", "owner/name")
     );
+    private static BuildResult successfulBuildResult = new BuildResult("ABC123", new Date(), "something", true);
+    private static BuildResult failedBuildResult = new BuildResult("ABC123", new Date(), "something", false);
 
     @Mock
     private Storage storage;
     @Mock
     private GitHubChecksClient client;
+    @Mock
+    private CiRunner runner;
 
     private Thread thread;
     private BlockingQueue<GitHubEvent> queue;
@@ -41,7 +46,7 @@ public class CiCoordinatorTest {
     @BeforeEach
     void setup() {
         queue = new LinkedBlockingQueue<>();
-        worker = new CiCoordinator(queue, storage, client, BASE_BUILD_URL);
+        worker = new CiCoordinator(queue, storage, client, runner, BASE_BUILD_URL);
 
         thread = new Thread(worker);
         thread.start();
@@ -59,6 +64,7 @@ public class CiCoordinatorTest {
     @Test
     void run_handlesCorrectly_whenSuccessfulBuild() throws Exception {
         when(client.createCheckRun(any(), any(), any(), any())).thenReturn("{\"id\": 1}");
+        when(runner.runBuild(event.getRepository(), event.getHeadCommit())).thenReturn(successfulBuildResult);
         queue.offer(event);
 
         // Wait until handle() has executed
@@ -66,7 +72,8 @@ public class CiCoordinatorTest {
                 .atMost(1, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     verify(client).createCheckRun("owner", "name", "CI - Compile and Test", "ABC123");
-                    verify(storage).storeBuildResult(any()); 
+                    verify(runner).runBuild(event.getRepository(), event.getHeadCommit());
+                    verify(storage).storeBuildResult(successfulBuildResult); 
                     verify(client).updateCheckRun("owner", "name", CheckStatus.COMPLETED, CheckConclusion.SUCCESS, BASE_BUILD_URL, new BigInteger("1"));
                 });
 
@@ -88,6 +95,7 @@ public class CiCoordinatorTest {
     @Test
     void run_handlesCorrectly_whenFailedBuild() throws Exception {
         when(client.createCheckRun(any(), any(), any(), any())).thenReturn("{\"id\": 1}");
+        when(runner.runBuild(event.getRepository(), event.getHeadCommit())).thenReturn(failedBuildResult);
         queue.offer(event);
 
         // Wait until handle() has executed
@@ -95,8 +103,9 @@ public class CiCoordinatorTest {
                 .atMost(1, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     verify(client).createCheckRun("owner", "name", "CI - Compile and Test", "ABC123");
-                    verify(storage).storeBuildResult(any()); 
-                    verify(client).updateCheckRun("owner", "name", CheckStatus.COMPLETED, CheckConclusion.SUCCESS, BASE_BUILD_URL, new BigInteger("1"));
+                    verify(runner).runBuild(event.getRepository(), event.getHeadCommit());
+                    verify(storage).storeBuildResult(failedBuildResult); 
+                    verify(client).updateCheckRun("owner", "name", CheckStatus.COMPLETED, CheckConclusion.FAILURE, BASE_BUILD_URL, new BigInteger("1"));
                 });
 
         thread.interrupt();

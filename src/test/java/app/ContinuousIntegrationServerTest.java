@@ -3,6 +3,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import domain.CiRunner;
 import github.clients.GitHubChecksClient;
 import io.restassured.RestAssured;
 
@@ -44,10 +45,12 @@ public class ContinuousIntegrationServerTest {
 
     @Mock
     private static GitHubChecksClient client;
+    @Mock
+    private static CiRunner runner;
 
     @BeforeAll
     private static void setup() throws Exception {
-        server = new ContinuousIntegrationServer(PORT, client, "url");
+        server = new ContinuousIntegrationServer(PORT, client, runner, "url");
         server.start();
     }
 

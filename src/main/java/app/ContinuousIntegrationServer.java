@@ -2,6 +2,7 @@ package app;
 import org.eclipse.jetty.server.Server;
 
 import domain.CiCoordinator;
+import domain.CiRunner;
 import domain.Storage;
 import github.clients.GitHubChecksClient;
 
@@ -28,7 +29,7 @@ public class ContinuousIntegrationServer {
      *
      * @param port the port to bind the server to
      */
-    public ContinuousIntegrationServer(int port, GitHubChecksClient client, String baseBuildUrl) {
+    public ContinuousIntegrationServer(int port, GitHubChecksClient client, CiRunner runner, String baseBuildUrl) {
         server = new Server(port);
         appState = new AppState();
         
@@ -38,9 +39,8 @@ public class ContinuousIntegrationServer {
             System.out.println(e.getMessage());
         }
 
-        ExecutorService workers = Executors.newFixedThreadPool(2);
-        workers.submit(new CiCoordinator(appState.getQueue(), storage, client, baseBuildUrl));
-        workers.submit(new CiCoordinator(appState.getQueue(), storage, client, baseBuildUrl));
+        ExecutorService workers = Executors.newFixedThreadPool(1);
+        workers.submit(new CiCoordinator(appState.getQueue(), storage, client, runner ,baseBuildUrl));
     
         ServletContextHandler context = new ServletContextHandler("/");
 

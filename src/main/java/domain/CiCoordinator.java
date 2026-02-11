@@ -14,6 +14,7 @@ public class CiCoordinator implements Runnable {
     private final BlockingQueue<GitHubEvent> gitHubEvents;
     private final Storage storage;
     private final GitHubChecksClient client;
+    private final CiRunner runner;
     private final String baseBuildUrl;
 
     /**
@@ -26,12 +27,14 @@ public class CiCoordinator implements Runnable {
     public CiCoordinator(
         BlockingQueue<GitHubEvent> gitHubEvents, 
         Storage storage, 
-        GitHubChecksClient client, 
+        GitHubChecksClient client,
+        CiRunner runner,
         String baseBuildUrl
     ) {
         this.gitHubEvents = gitHubEvents;
         this.storage = storage;
         this.client = client;
+        this.runner = runner;
         this.baseBuildUrl = baseBuildUrl;
     }
 
@@ -60,8 +63,7 @@ public class CiCoordinator implements Runnable {
         System.out.println("HERE");
         BigInteger runId = getRunId(repsonseBody);
         System.out.println("HERE 2");
-        //result = compile
-        BuildResult buildResult = new BuildResult(commitSha, null, null, true);
+        BuildResult buildResult = runner.runBuild(event.getRepository(), event.getHeadCommit());
 
         storage.storeBuildResult(buildResult);
 
@@ -71,7 +73,7 @@ public class CiCoordinator implements Runnable {
     
         } else {
             //update test checkRun failed
-            client.updateCheckRun(repoOwner, repoUrl, CheckStatus.COMPLETED, CheckConclusion.FAILURE, baseBuildUrl, runId);
+            client.updateCheckRun(repoOwner, repoName, CheckStatus.COMPLETED, CheckConclusion.FAILURE, baseBuildUrl, runId);
         }
     }
     

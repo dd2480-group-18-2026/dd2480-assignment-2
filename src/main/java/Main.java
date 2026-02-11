@@ -1,4 +1,6 @@
 import app.ContinuousIntegrationServer;
+import domain.CiRunner;
+import domain.ProcessRunner;
 import github.clients.GitHubChecksClient;
 /**
  *  * Application entry point.
@@ -15,7 +17,8 @@ public class Main {
         String baseBuildUrl = System.getenv("BASE_BUILD_URL");
 
         GitHubChecksClient client = new GitHubChecksClient(appId, installationId, privateKeyPath, gitHubBaseUrl);
-        ContinuousIntegrationServer server = new ContinuousIntegrationServer(port, client, baseBuildUrl);
+        CiRunner runner = new CiRunner(new ProcessRunner());
+        ContinuousIntegrationServer server = new ContinuousIntegrationServer(port, client, runner, baseBuildUrl);
         server.start();
         server.join();
     }
