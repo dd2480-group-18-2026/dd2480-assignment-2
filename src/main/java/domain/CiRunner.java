@@ -41,7 +41,7 @@ public class CiRunner {
 	}
 
 	/**
-	 * Runs the CI service, getting and building + testing a maven project from a GitHub source
+	 * Runs the CI service, getting and building/testing a maven project from a GitHub source
 	 * 
 	 * @return BuildResult containing the commit SHA hash, date method was called, 
 	 * text output from the build, and boolean success status
@@ -85,14 +85,14 @@ public class CiRunner {
 	}
 
 	/**
-	 * Runs the CI service, getting and building a maven project from a GitHub source
+	 * Runs the CI service, getting and compiling a maven project from a GitHub source
 	 * Does not run tests
 	 * 
 	 * @return BuildResult containing the commit SHA hash, date method was called, 
 	 * text output from the build, and boolean success status
 	 * @throws IOException When temporary files created could not be fully deleted
 	 */
-	public BuildResult runBuildWithoutTest() throws IOException {
+	public BuildResult runCompile() throws IOException {
 		Date currentDate = new Date();
 		boolean cloneSuccess = false;
 		boolean getCommitSuccess = false;
@@ -102,7 +102,7 @@ public class CiRunner {
 		cloneSuccess = cloneRepo(repoURL, repoLOC);
 		getCommitSuccess = getCommit(repoLOC, commitHash);
 
-		CommandResult build = buildRepoWithoutTest(repoLOC);
+		CommandResult build = compileRepo(repoLOC);
 		buildSuccess = build.success;
 		buildOutput = build.output;
 
@@ -173,7 +173,7 @@ public class CiRunner {
 
 		try {
 			String mavenLOC = repoLOC + "/pom.xml";
-			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "package", "-B", "-f", mavenLOC);
+			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "test", "-f", mavenLOC);
 			compileBuilder.redirectErrorStream(true);
 			Process cloneProcess = compileBuilder.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));
@@ -194,13 +194,13 @@ public class CiRunner {
 		return new CommandResult(outputString.toString(), success);
 	}
 
-	private CommandResult buildRepoWithoutTest(String repoLOC) {
+	private CommandResult compileRepo(String repoLOC) {
 		boolean success = false;
 		StringBuilder outputString = new StringBuilder();
 
 		try {
 			String mavenLOC = repoLOC + "/pom.xml";
-			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "package", "-Dmaven.test.skip", "-B", "-f", mavenLOC);
+			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "compile", "-B", "-f", mavenLOC);
 			compileBuilder.redirectErrorStream(true);
 			Process cloneProcess = compileBuilder.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));

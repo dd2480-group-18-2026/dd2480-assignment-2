@@ -15,7 +15,7 @@ class TempTest {
 			new Repository("https://github.com/dd2480-group-18-2026/dd2480-assignment-2.git"), 
 			new Commit("19cdd87")
 		);
-		BuildResult res = runner.run();
+		BuildResult res = runner.runBuild();
 		System.out.println("BUILD OUTPUT");
 		System.out.println("---------------------------------------------------");
 		System.out.println(res.buildOutput);
