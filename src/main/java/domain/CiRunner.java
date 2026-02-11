@@ -133,7 +133,7 @@ public class CiRunner {
 		boolean success = false;
 
 		try {
-			ProcessBuilder cloneBuilder = new ProcessBuilder("git", "clone", repoURL, repoLOC);
+			ProcessBuilder cloneBuilder = new ProcessBuilder("git", "-C", repoLOC, "clone", repoURL, repoLOC);
 			cloneBuilder.redirectErrorStream(true);
 			Process cloneProcess = cloneBuilder.start();
 
