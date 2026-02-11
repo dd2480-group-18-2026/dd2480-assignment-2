@@ -57,19 +57,11 @@ public class CiRunner {
 		return false;
 	}
 
-	private void compileRepo(String repoLOC) throws IOException, InterruptedException {
-		String mavenLOC = repoLOC + "/pom.xml";
-		ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "compile", "-f", mavenLOC);
-		compileBuilder.redirectErrorStream(true);
-		Process cloneProcess = compileBuilder.start();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));
-		int res = cloneProcess.waitFor();
-		System.out.println(res);
-		String line;
-		while((line = reader.readLine()) != null) {
-			System.out.println(line);
-		}
-	}
+	private boolean cloneRepo(String repoURL, String repoLOC) {
+		try {
+			ProcessBuilder cloneBuilder = new ProcessBuilder("git", "clone", repoURL, repoLOC);
+			cloneBuilder.redirectErrorStream(true);
+			Process cloneProcess = cloneBuilder.start();
 
 			int result = cloneProcess.waitFor();
 			if (result == 0) {
