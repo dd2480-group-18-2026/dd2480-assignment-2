@@ -54,9 +54,27 @@ Then, you can start the container using
 docker run -p <HOST_PORT>:<CONTAINER_PORT> -v <ENV_FILE>:/app/.env <IMAGE_NAME>:latest
 ```
 
+## Accessing build information
+
+Build information is stored on a persistent SQLite database that is created and initialized by the server on startup. Of course, it needs to be mounted through Docker to persist through deployments.
+
+The URL for accessing all the build information is /builds. This returns a JSON containing the IDs of the builds, and the URLs for each of them.
+
+Each URL contains detailed information about a specific build such as the build date, the commit SHA, the build output and the success state of the build.
+
 ## Documentation
 
 The documentation is made using Javadoc, and is hosted on GitHub pages [here](https://dd2480-group-18-2026.github.io/dd2480-assignment-2/).
+
+## For grading
+
+There's a live instance of our server at https://dd2480-assignment-2.onrender.com/.
+
+### Compilation
+
+### Test execution
+
+### Notification
 
 ## Contributions
 
@@ -65,7 +83,6 @@ The documentation is made using Javadoc, and is hosted on GitHub pages [here](ht
 - Deployed the CI server to Render using Docker
 - Wrote Javadoc
 - Reviewed PR's
-
 
 ### Felix (GitHub: seahoers)
 - Added webhook request handling.
