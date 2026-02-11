@@ -79,7 +79,7 @@ public class GitHubChecksClient {
      * This method updates the check run with the given check run ID.
      * @param owner
      * @param repo
-     * @param checkStatus
+     * @param status
      * @param conclusion
      * @param checkRunId
      * @return JSON String representation of the response body.
