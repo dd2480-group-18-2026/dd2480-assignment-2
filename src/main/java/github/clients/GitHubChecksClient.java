@@ -12,6 +12,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * GitHub client for creating and updating check runs via the GitHub Checks API.
+ */
 public class GitHubChecksClient {
 
     private static final OkHttpClient client = new OkHttpClient();
@@ -76,7 +79,7 @@ public class GitHubChecksClient {
      * This method updates the check run with the given check run ID.
      * @param owner
      * @param repo
-     * @param checkStatus
+     * @param status
      * @param conclusion
      * @param checkRunId
      * @return JSON String representation of the response body.

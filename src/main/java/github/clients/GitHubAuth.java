@@ -21,6 +21,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import okhttp3.*;
 
+/**
+ * Handles GitHub App authentication and installation token retrieval.
+ */
 public class GitHubAuth {
 
     private static final OkHttpClient client = new OkHttpClient();
