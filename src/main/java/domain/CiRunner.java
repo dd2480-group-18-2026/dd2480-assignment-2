@@ -9,10 +9,11 @@ import java.util.Date;
 
 import domain.GitHubEvent.Repository;
 import domain.GitHubEvent.Commit;
-import domain.BuildResult;
 import tools.Cleanup;
 
-
+/**
+ * Class that handles running the CI service and getting the results for a given repository
+ */
 public class CiRunner {
 	private class CommandResult {
 		public final String output;
@@ -28,35 +29,37 @@ public class CiRunner {
 	private final String commitHash;
 	private final String repoLOC = "./Temp_CiRunner_Output";
 
+	/**
+	 * 
+	 * @param repo The external repository that the CI will run on
+	 * @param commit The specific commit to be inspected
+	 * @throws IOException
+	 */
 	public CiRunner(Repository repo, Commit commit) throws IOException {
 		this.repoURL = repo.getUrl();
 		this.commitHash = commit.getSha();
 	}
 
 	/**
-	 * Runs the CI service
+	 * Runs the CI service, getting and building + testing a maven project from a GitHub source
 	 * 
-	 * @return True if all actions succeed, false otherwise
+	 * @return BuildResult containing the commit SHA hash, date method was called, 
+	 * text output from the build, and boolean success status
 	 * @throws IOException When temporary files created could not be fully deleted
 	 */
-	public BuildResult run() throws IOException {
+	public BuildResult runBuild() throws IOException {
+		Date currentDate = new Date();
 		boolean cloneSuccess = false;
 		boolean getCommitSuccess = false;
-		boolean compileSucess = false; 
-		String compileOutput;
-		boolean testSuccess = false; 
-		String testOutput;
+		boolean buildSuccess = false; 
+		String buildOutput;
 
 		cloneSuccess = cloneRepo(repoURL, repoLOC);
 		getCommitSuccess = getCommit(repoLOC, commitHash);
 
-		CommandResult compileResult = compileRepo(repoLOC);
-		CommandResult testResult = testRepo(repoLOC);
-		compileSucess = compileResult.success;
-		compileOutput = compileResult.output;
-		testSuccess = testResult.success;
-		testOutput = testResult.output;
-
+		CommandResult build = buildRepo(repoLOC);
+		buildSuccess = build.success;
+		buildOutput = build.output;
 
 		Path path = Paths.get(repoLOC);
 		try {
@@ -68,7 +71,7 @@ public class CiRunner {
 
 		boolean success = false; 
 
-		if (cloneSuccess && getCommitSuccess && compileSucess && testSuccess) {
+		if (cloneSuccess && getCommitSuccess && buildSuccess) {
 			success =  true;
 		}
 		else {
@@ -76,7 +79,52 @@ public class CiRunner {
 			if (!getCommitSuccess) throw new RuntimeException("Failure getting commit");
 		}
 		
-		BuildResult buildResult = new BuildResult(commitHash, new Date(), compileOutput + testOutput, success);
+		BuildResult buildResult = new BuildResult(commitHash, currentDate, buildOutput, success);
+
+		return buildResult;
+	}
+
+	/**
+	 * Runs the CI service, getting and building a maven project from a GitHub source
+	 * Does not run tests
+	 * 
+	 * @return BuildResult containing the commit SHA hash, date method was called, 
+	 * text output from the build, and boolean success status
+	 * @throws IOException When temporary files created could not be fully deleted
+	 */
+	public BuildResult runBuildWithoutTest() throws IOException {
+		Date currentDate = new Date();
+		boolean cloneSuccess = false;
+		boolean getCommitSuccess = false;
+		boolean buildSuccess = false; 
+		String buildOutput;
+
+		cloneSuccess = cloneRepo(repoURL, repoLOC);
+		getCommitSuccess = getCommit(repoLOC, commitHash);
+
+		CommandResult build = buildRepoWithoutTest(repoLOC);
+		buildSuccess = build.success;
+		buildOutput = build.output;
+
+		Path path = Paths.get(repoLOC);
+		try {
+			Cleanup.deleteRecursively(path);
+		} catch (IOException e) {
+			System.err.println("Error deleting temporary files");
+			throw new IOException();
+		}
+
+		boolean success = false; 
+
+		if (cloneSuccess && getCommitSuccess && buildSuccess) {
+			success =  true;
+		}
+		else {
+			if (!cloneSuccess) throw new RuntimeException("Failure getting repository");
+			if (!getCommitSuccess) throw new RuntimeException("Failure getting commit");
+		}
+		
+		BuildResult buildResult = new BuildResult(commitHash, currentDate, buildOutput, success);
 
 		return buildResult;
 	}
@@ -90,7 +138,6 @@ public class CiRunner {
 			Process cloneProcess = cloneBuilder.start();
 
 			int result = cloneProcess.waitFor();
-			System.out.println("result:" + result);
 			if (result == 0) {
 				success = true;
 			}
@@ -120,14 +167,13 @@ public class CiRunner {
 		return success;
 	} 
 
-
-	private CommandResult compileRepo(String repoLOC) {
+	private CommandResult buildRepo(String repoLOC) {
 		boolean success = false;
 		StringBuilder outputString = new StringBuilder();
 
 		try {
 			String mavenLOC = repoLOC + "/pom.xml";
-			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "compile", "-f", mavenLOC);
+			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "package", "-B", "-f", mavenLOC);
 			compileBuilder.redirectErrorStream(true);
 			Process cloneProcess = compileBuilder.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));
@@ -143,18 +189,18 @@ public class CiRunner {
 				success = true;
 			}
 		} catch (IOException | InterruptedException e) {
-			System.err.println("Error compiling");
+			System.err.println("Error building");
 		}
 		return new CommandResult(outputString.toString(), success);
 	}
 
-	private CommandResult testRepo(String repoLOC) {
+	private CommandResult buildRepoWithoutTest(String repoLOC) {
 		boolean success = false;
 		StringBuilder outputString = new StringBuilder();
 
 		try {
 			String mavenLOC = repoLOC + "/pom.xml";
-			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "test", "-f", mavenLOC);
+			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "package", "-Dmaven.test.skip", "-B", "-f", mavenLOC);
 			compileBuilder.redirectErrorStream(true);
 			Process cloneProcess = compileBuilder.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));
@@ -170,7 +216,7 @@ public class CiRunner {
 				success = true;
 			}
 		} catch (IOException | InterruptedException e) {
-			System.err.println("Error running tests");
+			System.err.println("Error building");
 		}
 		return new CommandResult(outputString.toString(), success);
 	}
