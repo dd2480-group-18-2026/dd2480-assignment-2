@@ -10,6 +10,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Servlet handling GitHub webhook requests for triggering CI runs.
+ */
 public class RunServlet extends HttpServlet {
     private final ObjectMapper mapper = new ObjectMapper();
     private AppState appState;
@@ -18,6 +21,17 @@ public class RunServlet extends HttpServlet {
         this.appState = appState;
     }
 
+    /**
+     * Handles GitHub webhook POST requests.
+     *
+     * <p>Accepts {@code push} events, ignores {@code ping} events, and rejects
+     * unsupported event types. Valid push payloads are added to the application
+     * event queue.
+     *
+     * @param request  the HTTP request
+     * @param response the HTTP response
+     * @throws IOException if an I/O error occurs while reading the request
+     */
     @Override
      protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         GitHubEvent event;
