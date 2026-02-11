@@ -12,12 +12,23 @@ import tools.Cleanup;
 
 /**
  * Class that handles running the CI service and getting the results for a given repository
+ * 
  */
 public class CiRunner {
 	private final String repoURL;
 	private final String commitHash;
 	private final String repoLOC = "./Temp_CiRunner_Output";
 	private final IProcessRunner runner;
+
+	/**
+	 * Constant indicating output when repository could not be obtained
+	 */
+	public static final String GetRepoFailure = "Error: Failure getting repository";
+	/**
+	 * Constant indicating output when commit could not be obtained
+	 */
+	public static final String GetCommitFailure = "Error: Failure getting commit";
+
 
 	/**
 	 * 
@@ -35,14 +46,17 @@ public class CiRunner {
 	 * Runs the CI service, getting and building/testing a maven project from a GitHub source
 	 * 
 	 * @return BuildResult containing the commit SHA hash, date method was called, 
-	 * text output from the build, and boolean success status
+	 * text output from the build, and boolean success status. If repository could not be obtained,
+	 * this is indicated in the text output
 	 * @throws IOException When temporary files created could not be fully deleted
 	 */
 	public BuildResult runBuild() throws IOException {
 		Date currentDate = new Date();
+
 		boolean cloneSuccess = false;
 		boolean getCommitSuccess = false;
 		boolean buildSuccess = false; 
+		
 		String buildOutput;
 
 		cloneSuccess = cloneRepo(repoURL, repoLOC);
@@ -63,11 +77,11 @@ public class CiRunner {
 		boolean success = false; 
 
 		if (cloneSuccess && getCommitSuccess && buildSuccess) {
-			success =  true;
+			success = true;
 		}
 		else {
-			if (!cloneSuccess) throw new RuntimeException("Failure getting repository");
-			if (!getCommitSuccess) throw new RuntimeException("Failure getting commit");
+			if (!cloneSuccess) buildOutput = new String(GetRepoFailure + "\n") + buildOutput;
+			if (!getCommitSuccess) buildOutput = new String(GetCommitFailure + "\n") + buildOutput;
 		}
 		
 		BuildResult buildResult = new BuildResult(commitHash, currentDate, buildOutput, success);
@@ -76,18 +90,20 @@ public class CiRunner {
 	}
 
 	/**
-	 * Runs the CI service, getting and compiling a maven project from a GitHub source
-	 * Does not run tests
+	 * Runs the CI service, getting and compiling a maven project from a GitHub source. Does not run tests
 	 * 
 	 * @return BuildResult containing the commit SHA hash, date method was called, 
-	 * text output from the build, and boolean success status
+	 * text output from the build, and boolean success status. If repository could not be obtained,
+	 * this is indicated in the text output
 	 * @throws IOException When temporary files created could not be fully deleted
 	 */
 	public BuildResult runCompile() throws IOException {
 		Date currentDate = new Date();
+
 		boolean cloneSuccess = false;
 		boolean getCommitSuccess = false;
 		boolean buildSuccess = false; 
+
 		String buildOutput;
 
 		cloneSuccess = cloneRepo(repoURL, repoLOC);
@@ -108,11 +124,11 @@ public class CiRunner {
 		boolean success = false; 
 
 		if (cloneSuccess && getCommitSuccess && buildSuccess) {
-			success =  true;
+			success = true;
 		}
 		else {
-			if (!cloneSuccess) throw new RuntimeException("Failure getting repository");
-			if (!getCommitSuccess) throw new RuntimeException("Failure getting commit");
+			if (!cloneSuccess) buildOutput = new String("Error: Failure getting repository\n") + buildOutput;
+			if (!getCommitSuccess) buildOutput = new String("Error: Failure getting commit\n") + buildOutput;
 		}
 		
 		BuildResult buildResult = new BuildResult(commitHash, currentDate, buildOutput, success);
