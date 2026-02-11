@@ -100,4 +100,6 @@ There's a live instance of our server at https://dd2480-assignment-2.onrender.co
 
 ### Tim (GitHub: Uniquepotatoes)
 - Implemented pulling and building remote repositories and reporting the results
+- Implemented helper class for running processes
+- Wrote some Javadoc for the above
 - Reviewed some PRs
