@@ -15,8 +15,8 @@ import tools.Cleanup;
  * 
  */
 public class CiRunner {
-	private final String repoURL;
-	private final String commitHash;
+	private String repoURL;
+	private String commitHash;
 	private final String repoLOC = "./Temp_CiRunner_Output";
 	private final IProcessRunner runner;
 
@@ -36,9 +36,7 @@ public class CiRunner {
 	 * @param commit The specific commit to be inspected
 	 * @throws IOException
 	 */
-	public CiRunner(Repository repo, Commit commit, IProcessRunner runner) throws IOException {
-		this.repoURL = repo.getUrl();
-		this.commitHash = commit.getSha();
+	public CiRunner(IProcessRunner runner) throws IOException {
 		this.runner = runner;
 	}
 
@@ -50,7 +48,9 @@ public class CiRunner {
 	 * this is indicated in the text output
 	 * @throws IOException When temporary files created could not be fully deleted
 	 */
-	public BuildResult runBuild() throws IOException {
+	public BuildResult runBuild(Repository repo, Commit commit) throws IOException {
+		this.repoURL = repo.getUrl();
+		this.commitHash =  commit.getSha();
 		Date currentDate = new Date();
 
 		boolean cloneSuccess = false;
@@ -97,7 +97,9 @@ public class CiRunner {
 	 * this is indicated in the text output
 	 * @throws IOException When temporary files created could not be fully deleted
 	 */
-	public BuildResult runCompile() throws IOException {
+	public BuildResult runCompile(Repository repo, Commit commit) throws IOException {
+		this.repoURL = repo.getUrl();
+		this.commitHash =  commit.getSha();
 		Date currentDate = new Date();
 
 		boolean cloneSuccess = false;
