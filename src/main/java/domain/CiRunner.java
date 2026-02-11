@@ -1,19 +1,29 @@
 package domain;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import domain.GitHubEvent.Repository;
 import domain.GitHubEvent.Commit;
+import domain.BuildResult;
 import tools.Cleanup;
 
 
 public class CiRunner {
+	private class CommandResult {
+		public final String output;
+		public final boolean success;
+
+		public CommandResult(String output, boolean success) {
+			this.output = output;
+			this.success = success;
+		}
+	};
+
 	private final String repoURL;
 	private final String commitHash;
 	private final String repoLOC = "./";
@@ -29,14 +39,17 @@ public class CiRunner {
 	 * @return True if all actions succeed, false otherwise
 	 * @throws IOException When temporary files created could not be fully deleted
 	 */
-	public boolean run() throws IOException {
+	public BuildResult run() throws IOException {
 		boolean cloneSuccess = false;
 		boolean getCommitSuccess = false;
 		boolean compileSucess = false; 
+		String compileOutput;
 
 		cloneSuccess = cloneRepo(repoURL, repoLOC);
 		getCommitSuccess = getCommit(repoLOC, commitHash);
-		compileSucess = compileRepo(repoLOC);
+		CommandResult compileResult = compileRepo(repoLOC);
+		compileSucess = compileResult.success;
+		compileOutput = compileResult.output;
 
 		Path path = Paths.get(repoLOC);
 		try {
@@ -46,18 +59,23 @@ public class CiRunner {
 			throw new IOException();
 		}
 
+		boolean success = false; 
+
 		if (cloneSuccess && getCommitSuccess && compileSucess) {
-			return true;
+			success =  true;
 		}
 		else {
-			if (!cloneSuccess) System.out.println("Clone failure");
-			if (!cloneSuccess) System.out.println("Get commit failure");
-			if (!cloneSuccess) System.out.println("Compile failure");
+			if (!cloneSuccess) System.err.println("Clone failure");
+			if (!cloneSuccess) System.err.println("Get commit failure");
 		}
-		return false;
+		
+		BuildResult buildResult = new BuildResult(commitHash, new Date(), compileOutput, success);
+
+		return buildResult;
 	}
 
 	private boolean cloneRepo(String repoURL, String repoLOC) {
+		boolean success = false;
 		try {
 			ProcessBuilder cloneBuilder = new ProcessBuilder("git", "clone", repoURL, repoLOC);
 			cloneBuilder.redirectErrorStream(true);
@@ -65,17 +83,18 @@ public class CiRunner {
 
 			int result = cloneProcess.waitFor();
 			if (result == 0) {
-				return true;
+				success = true;
 			}
 		}
 		catch (IOException | InterruptedException e) {
 			System.err.println("Error cloning");
-			return false;
 		}
-		return false;
+		return success;
 	} 
 
 	private boolean getCommit(String repoLOC, String commitHash) {
+		boolean success = false;
+
 		try {
 			ProcessBuilder checkoutBuilder = new ProcessBuilder("git", "switch", "--detach", commitHash);
 			checkoutBuilder.redirectErrorStream(true);
@@ -83,18 +102,20 @@ public class CiRunner {
 
 			int result = checkoutProcess.waitFor();
 			if (result == 0) {
-				return true;
+				success = true;
 			}
 		}
 		catch (IOException | InterruptedException e) {
 			System.err.println("Error getting commit");
-			return false;
 		}
-		return false;
+		return success;
 	} 
 
 
-	private boolean compileRepo(String repoLOC) {
+	private CommandResult compileRepo(String repoLOC) {
+		boolean success = false;
+		StringBuilder outputString = new StringBuilder();
+
 		try {
 			String mavenLOC = repoLOC + "/pom.xml";
 			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "compile", "-f", mavenLOC);
@@ -104,16 +125,44 @@ public class CiRunner {
 
 			int result = cloneProcess.waitFor();
 			String line;
+
 			while((line = reader.readLine()) != null) {
 				System.out.println(line);
+				outputString.append(line);
 			} 
 			if (result == 0) {
-				return true;
+				success = true;
 			}
 		} catch (IOException | InterruptedException e) {
 			System.err.println("Error compiling");
-			return false;
 		}
-		return false;
+		return new CommandResult(outputString.toString(), success);
+	}
+
+	private CommandResult testRepo(String repoLOC) {
+		boolean success = false;
+		StringBuilder outputString = new StringBuilder();
+
+		try {
+			String mavenLOC = repoLOC + "/pom.xml";
+			ProcessBuilder compileBuilder = new ProcessBuilder("mvn", "test", "-f", mavenLOC);
+			compileBuilder.redirectErrorStream(true);
+			Process cloneProcess = compileBuilder.start();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(cloneProcess.getInputStream()));
+
+			int result = cloneProcess.waitFor();
+			String line;
+
+			while((line = reader.readLine()) != null) {
+				System.out.println(line);
+				outputString.append(line);
+			} 
+			if (result == 0) {
+				success = true;
+			}
+		} catch (IOException | InterruptedException e) {
+			System.err.println("Error running tests");
+		}
+		return new CommandResult(outputString.toString(), success);
 	}
 }
