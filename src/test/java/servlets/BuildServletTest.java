@@ -25,6 +25,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Unit tests for {@link BuildServlet}.
+ *
+ * <p>Verifies JSON responses and HTTP status codes for build listing and
+ * build-by-id requests.
+ */
 @ExtendWith(MockitoExtension.class)
 public class BuildServletTest {
     @Mock

@@ -8,7 +8,9 @@ import static org.hamcrest.Matchers.containsString;
 
 import org.junit.jupiter.api.BeforeAll;
 /**
- * Unit test for simple App.
+ * Integration tests for {@link ContinuousIntegrationServer}.
+ *
+ * <p>Verifies HTTP responses for root and webhook endpoints.
  */
 public class ContinuousIntegrationServerTest {
 

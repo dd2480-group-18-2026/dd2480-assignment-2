@@ -22,6 +22,11 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 
+/**
+ * Unit tests for {@link GitHubChecksClient}.
+ *
+ * <p>Verifies request URLs/headers/bodies and response/error handling using {@link MockWebServer}.
+ */
 @ExtendWith(MockitoExtension.class)
 public class GitHubChecksClientTest {
 

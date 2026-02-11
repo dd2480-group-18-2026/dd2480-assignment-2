@@ -9,9 +9,18 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * Simple SQLite-backed storage for {@link BuildResult} history.
+ */
 public class Storage {
     private Connection databaseConnection;
     
+    /**
+     * Creates or opens a SQLite database at the given path and initializes the schema if needed.
+     *
+     * @param databasePath path to the SQLite database file
+     * @throws IOException if the database file cannot be created
+     */
     public Storage(String databasePath) throws IOException {
         var sqlite_file = new File(databasePath);
 
@@ -35,6 +44,11 @@ public class Storage {
         }
     }
 
+    /**
+     * Stores a build result in the database.
+     *
+     * @param buildResults the build result to store
+     */
     public void storeBuildResult(BuildResult buildResults) {
         String sql = """
             INSERT INTO history(build_idx, date, commit_sha, build_output, success)
@@ -53,6 +67,11 @@ public class Storage {
         }
     }
 
+    /**
+     * Returns the stored build indices.
+     *
+     * @return list of build indices (may be empty)
+     */
     public ArrayList<Integer> getBuildIndexes() {
         String sql = """
                 SELECT build_idx
@@ -74,6 +93,13 @@ public class Storage {
         }
     }
 
+    /**
+     * Returns the build result for the given index.
+     *
+     * @param buildIndex build index
+     * @return the corresponding build result
+     * @throws SQLException if the index does not exist or the query fails
+     */
     public BuildResult getBuildResult(Integer buildIndex) throws SQLException {
         var sql = """
                 SELECT * FROM history
