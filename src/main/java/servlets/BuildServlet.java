@@ -11,10 +11,25 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Servlet providing access to stored build results.
+ *
+ * <p>Supports listing builds and retrieving individual build details.
+ */
 public class BuildServlet extends HttpServlet {
     private ObjectMapper objectMapper = new ObjectMapper();
     private Storage database;
 
+    /**
+     * Handles build listing and build detail requests.
+     *
+     * <p>If no path is provided, returns a list of builds. If a build ID is provided,
+     * returns details for that build.
+     *
+     * @param request  the HTTP request
+     * @param response the HTTP response
+     * @throws IOException if an I/O error occurs while writing the response
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
@@ -53,6 +68,11 @@ public class BuildServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Creates a servlet backed by the given storage.
+     *
+     * @param database the storage used to retrieve build results
+     */
     public BuildServlet(Storage database) {
         this.database = database;
     }

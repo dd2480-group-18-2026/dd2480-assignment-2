@@ -10,6 +10,11 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Unit tests for {@link Storage}.
+ *
+ * <p>Verifies storing and retrieving build results and error handling for invalid indices.
+ */
 public class StorageTests {
     @Test
     void storeBuildResults_storesResults() {

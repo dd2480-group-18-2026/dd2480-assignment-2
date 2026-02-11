@@ -20,7 +20,12 @@ import app.AppState;
 import domain.GitHubEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+/**
+ * Unit tests for {@link RunServlet}.
+ *
+ * <p>Verifies that valid {@code push} webhook requests are enqueued and that invalid payloads or
+ * non-{@code push} events are ignored.
+ */
 @ExtendWith(MockitoExtension.class)
 public class RunServletTest {
     @Mock
