@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -27,11 +25,11 @@ import okhttp3.mockwebserver.RecordedRequest;
 @ExtendWith(MockitoExtension.class)
 public class GitHubChecksClientTest {
 
-    private static final String BASE_URL = "https://BASE_URL";
     private static final String OWNER = "OWNER";
     private static final String REPO = "REPO";
     private static final String CHECK_NAME = "CHECK_NAME";
     private static final String HEAD_SHA = "HEAD_SHA";
+    private static final String DETAILS_URL = "DETAILS_URL";
     private static final String ACTUAL_TOKEN = "ACTUAL_TOKEN";
     private static final BigInteger RUN_ID = new BigInteger("839303");
     private static final String BODY = """
@@ -42,10 +40,7 @@ public class GitHubChecksClientTest {
     private static final String VERSION_HEADER_NAME = "X-GitHub-Api-Version";
     private static final String AUTHORIZATION_HEADER_VALUE = "token " + ACTUAL_TOKEN;
     private static final String ACCEPT_HEADER_VALUE = "application/vnd.github+json";
-    private static final String VERSION_HEADER_VALUE = "2022-11-28";
-    private static final String CREATE_PAYLOAD = """
-            {"head_sha": "HEAD_SHA","name": "CHECK_NAME","status: "in_progress"}
-            """;
+    private static final String VERSION_HEADER_VALUE = "2022-11-28"; 
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Mock
@@ -107,7 +102,7 @@ public class GitHubChecksClientTest {
     void updateCheckRun_sendsRequestCorrectly() throws Exception {
         String path = OWNER + "/" + REPO + "/check-runs/" + RUN_ID;
 
-        checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, RUN_ID);
+        checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID);
         RecordedRequest request = server.takeRequest();
         String body = request.getBody().readUtf8();
         JsonNode jsonBody = mapper.readTree(body);
@@ -117,13 +112,14 @@ public class GitHubChecksClientTest {
         assertEquals(AUTHORIZATION_HEADER_VALUE, request.getHeader(AUTHORIZATION_HEADER_NAME));
         assertEquals(ACCEPT_HEADER_VALUE, request.getHeader(ACCEPT_HEADER_NAME));
         assertEquals(VERSION_HEADER_VALUE, request.getHeader(VERSION_HEADER_NAME));
+        assertEquals(DETAILS_URL, jsonBody.get("details_url").asText());
         assertEquals("success", jsonBody.get("conclusion").asText());
         assertEquals("completed", jsonBody.get("status").asText());
     }
     
     @Test
     void updateCheckRun_returnsSuccessfulResponseBody() throws Exception {
-        String body = checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, RUN_ID);
+        String body = checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID);
         
         assertEquals(BODY, body);
     }
@@ -140,7 +136,7 @@ public class GitHubChecksClientTest {
         
         Exception exception = assertThrows(RuntimeException.class, () -> {
 
-            checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, RUN_ID);
+            checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID);
         });
 
         assertEquals(errorBody, exception.getMessage());;

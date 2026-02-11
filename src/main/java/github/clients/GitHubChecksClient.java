@@ -87,12 +87,14 @@ public class GitHubChecksClient {
             String repo,
             CheckStatus status,
             CheckConclusion conclusion,
+            String detailsUrl,
             BigInteger checkRunId
     ) throws Exception {
 
         Map<String, Object> payload = Map.of(
                 "status", status.toString(),
-                "conclusion", conclusion.toString()
+                "conclusion", conclusion.toString(),
+                "details_url", detailsUrl
         );
         String url = baseUrl + owner + "/" + repo + "/check-runs/" + checkRunId;
         String token = auth.getInstallationToken();
