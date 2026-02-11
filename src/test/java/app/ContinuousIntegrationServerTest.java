@@ -23,7 +23,8 @@ public class ContinuousIntegrationServerTest {
                     "id": "ABC123"
                 },
                 "repository": {
-                    "clone_url": "someUrl"
+                    "clone_url": "someUrl",
+                    "full_name": "owner/repoName"
                 }
             }
             """;
@@ -33,7 +34,8 @@ public class ContinuousIntegrationServerTest {
                     "id": "ABC123"
                 },
                 "repositor": {
-                    "clone_url": "someUrl"
+                    "clone_url": "someUrl",
+                    "full_name": "owner/repoName"
                 }
             }
             """;
