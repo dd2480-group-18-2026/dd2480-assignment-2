@@ -7,9 +7,15 @@ import java.io.InputStreamReader;
 import java.lang.ProcessBuilder;
 
 /**
- * Class that handles running processes and getting their output
+ * Implementation of the IProcessRunner interface. Uses ProcessBuilder internally.
  */
 final public class ProcessRunner implements IProcessRunner {
+	/**
+	 * Runs a given process using ProcessBuilder
+	 * 
+	 * @param command The program and parameters to run
+	 * @return The output from running the process and whether it succeeded
+	 */
 	public ProcessResult runProcess(String[] command) throws IOException, InterruptedException {
 		boolean success = false;
 		StringBuilder outputString = new StringBuilder();
