@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,15 +22,16 @@ import domain.GitHubEvent.Repository;
 @ExtendWith(MockitoExtension.class)
 public class CiRunnerTests {
 	static CiRunner runner;
-	final static String success_sha = "f158fa9";
+	@Mock
+	static ProcessRunner mockProcessRunner;
+	final static String sha = "a1b2c3d";
 	
 	@BeforeAll
 	static void setup() throws IOException {
-		String workingDir = System.getProperty("user.dir");
 		runner = new CiRunner(
-			new Repository("file://" + workingDir + "/src/test/resources/TestMavenRepo"),
-			new Commit(success_sha),
-			new ProcessRunner()
+			new Repository("made/up/repo"),
+			new Commit(sha),
+			mockProcessRunner
 		);
 	}
 	

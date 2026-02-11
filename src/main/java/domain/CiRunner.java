@@ -123,7 +123,7 @@ public class CiRunner {
 	private boolean cloneRepo(String repoURL, String repoLOC) {
 		ProcessResult result = new ProcessResult("", false);
 		try {
-			result = runner.runProcess(new String[]{"git", "-C", repoLOC, "clone", repoURL, repoLOC});
+			result = runner.runProcess(new String[]{"git", "clone", repoURL, repoLOC});
 		} catch(IOException | InterruptedException e) {
 			System.err.println("Error cloning repository");
 		}

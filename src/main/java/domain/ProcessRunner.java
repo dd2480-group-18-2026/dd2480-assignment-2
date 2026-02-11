@@ -27,7 +27,6 @@ final public class ProcessRunner implements IProcessRunner {
 		if (result == 0) {
 			success = true;
 		}
-		System.out.println("Result: " + result);
 
 		return new ProcessResult(outputString.toString(), success);
 	}
