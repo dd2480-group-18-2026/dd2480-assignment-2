@@ -47,7 +47,7 @@ public class ContinuousIntegrationServerTest {
 
     @BeforeAll
     private static void setup() throws Exception {
-        server = new ContinuousIntegrationServer(PORT, client);
+        server = new ContinuousIntegrationServer(PORT, client, "url");
         server.start();
     }
 
