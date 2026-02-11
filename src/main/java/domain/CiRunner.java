@@ -26,7 +26,7 @@ public class CiRunner {
 
 	private final String repoURL;
 	private final String commitHash;
-	private final String repoLOC = "./";
+	private final String repoLOC = "./Temp_CiRunner_Output";
 
 	public CiRunner(Repository repo, Commit commit) throws IOException {
 		this.repoURL = repo.getUrl();
@@ -44,12 +44,19 @@ public class CiRunner {
 		boolean getCommitSuccess = false;
 		boolean compileSucess = false; 
 		String compileOutput;
+		boolean testSuccess = false; 
+		String testOutput;
 
 		cloneSuccess = cloneRepo(repoURL, repoLOC);
 		getCommitSuccess = getCommit(repoLOC, commitHash);
+
 		CommandResult compileResult = compileRepo(repoLOC);
+		CommandResult testResult = testRepo(repoLOC);
 		compileSucess = compileResult.success;
 		compileOutput = compileResult.output;
+		testSuccess = testResult.success;
+		testOutput = testResult.output;
+
 
 		Path path = Paths.get(repoLOC);
 		try {
@@ -61,27 +68,29 @@ public class CiRunner {
 
 		boolean success = false; 
 
-		if (cloneSuccess && getCommitSuccess && compileSucess) {
+		if (cloneSuccess && getCommitSuccess && compileSucess && testSuccess) {
 			success =  true;
 		}
 		else {
-			if (!cloneSuccess) System.err.println("Clone failure");
-			if (!cloneSuccess) System.err.println("Get commit failure");
+			if (!cloneSuccess) throw new RuntimeException("Failure getting repository");
+			if (!getCommitSuccess) throw new RuntimeException("Failure getting commit");
 		}
 		
-		BuildResult buildResult = new BuildResult(commitHash, new Date(), compileOutput, success);
+		BuildResult buildResult = new BuildResult(commitHash, new Date(), compileOutput + testOutput, success);
 
 		return buildResult;
 	}
 
 	private boolean cloneRepo(String repoURL, String repoLOC) {
 		boolean success = false;
+
 		try {
 			ProcessBuilder cloneBuilder = new ProcessBuilder("git", "clone", repoURL, repoLOC);
 			cloneBuilder.redirectErrorStream(true);
 			Process cloneProcess = cloneBuilder.start();
 
 			int result = cloneProcess.waitFor();
+			System.out.println("result:" + result);
 			if (result == 0) {
 				success = true;
 			}
@@ -96,11 +105,11 @@ public class CiRunner {
 		boolean success = false;
 
 		try {
-			ProcessBuilder checkoutBuilder = new ProcessBuilder("git", "switch", "--detach", commitHash);
-			checkoutBuilder.redirectErrorStream(true);
-			Process checkoutProcess = checkoutBuilder.start();
+			ProcessBuilder switchBuilder = new ProcessBuilder("git", "-C", repoLOC, "switch", "--detach", commitHash);
+			switchBuilder.redirectErrorStream(true);
+			Process switchProcess = switchBuilder.start();
 
-			int result = checkoutProcess.waitFor();
+			int result = switchProcess.waitFor();
 			if (result == 0) {
 				success = true;
 			}
@@ -128,7 +137,7 @@ public class CiRunner {
 
 			while((line = reader.readLine()) != null) {
 				System.out.println(line);
-				outputString.append(line);
+				outputString.append(line + "\n");
 			} 
 			if (result == 0) {
 				success = true;
@@ -155,7 +164,7 @@ public class CiRunner {
 
 			while((line = reader.readLine()) != null) {
 				System.out.println(line);
-				outputString.append(line);
+				outputString.append(line + "\n");
 			} 
 			if (result == 0) {
 				success = true;
