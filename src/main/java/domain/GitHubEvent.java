@@ -80,7 +80,7 @@ public class GitHubEvent {
          * Creates a repository representation.
          *
          * @param url the repository clone URL
-         * @param fullName The full name of the repository in format <owner>/<name>
+         * @param fullName The full name of the repository in format "owner"/"name"
          */
         @JsonCreator
         public Repository(
