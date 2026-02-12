@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
  */
 public class ContinuousIntegrationServerTest {
 
-    private static final int PORT = 8098;
+    private static final int PORT = 8080;
     private static final String WEBHOOK_HEADER_NAME = "X-GitHub-Event";
     private static ContinuousIntegrationServer server;
     private static final String validWebhookBody = """
