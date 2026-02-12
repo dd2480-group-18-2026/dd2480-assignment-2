@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 
 import servlets.BuildServlet;
 import servlets.RootServlet;
@@ -49,6 +50,8 @@ public class ContinuousIntegrationServer {
         context.addServlet(RootServlet.class, "/");
         context.addServlet(new RunServlet(appState), "/run");
         context.addServlet(new BuildServlet(storage), "/builds/*");
+        context.addServlet(new ServletHolder(new servlets.BuildsUiServlet()), "/builds-ui");
+
 
         server.setHandler(context);
     }
