@@ -1,3 +1,4 @@
+Test server
 # DD2480 Assignment 2: Continuous Integration
 
 This project implements a small-scale Continuous Integration server written in Java.
