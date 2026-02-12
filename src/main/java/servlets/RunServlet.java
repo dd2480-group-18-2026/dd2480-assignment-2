@@ -35,6 +35,8 @@ public class RunServlet extends HttpServlet {
     @Override
      protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         GitHubEvent event;
+
+        System.out.println(request);
         
         String eventType = getEventType(request);
         if (eventType.equals("ping")) {
