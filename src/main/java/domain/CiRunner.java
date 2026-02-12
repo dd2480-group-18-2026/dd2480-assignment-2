@@ -17,7 +17,7 @@ import tools.Cleanup;
 public class CiRunner {
 	private String repoURL;
 	private String commitHash;
-	private final String repoLOC = "./Temp_CiRunner_Output";
+	private final String repoLOC = "/tmp/Temp_CiRunner_Output";
 	private final IProcessRunner runner;
 
 	/**
