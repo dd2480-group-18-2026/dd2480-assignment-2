@@ -32,8 +32,7 @@ public class CiRunner {
 
 	/**
 	 * 
-	 * @param repo The external repository that the CI will run on
-	 * @param commit The specific commit to be inspected
+	 * @param runner The process runner
 	 * @throws IOException
 	 */
 	public CiRunner(IProcessRunner runner) throws IOException {
@@ -43,6 +42,8 @@ public class CiRunner {
 	/**
 	 * Runs the CI service, getting and building/testing a maven project from a GitHub source
 	 * 
+	 * @param repo The external repository that the CI will run on
+	 * @param commit The specific commit to be inspected
 	 * @return BuildResult containing the commit SHA hash, date method was called, 
 	 * text output from the build, and boolean success status. If repository could not be obtained,
 	 * this is indicated in the text output
@@ -92,6 +93,8 @@ public class CiRunner {
 	/**
 	 * Runs the CI service, getting and compiling a maven project from a GitHub source. Does not run tests
 	 * 
+	 * @param repo The external repository that the CI will run on
+	 * @param commit The specific commit to be inspected
 	 * @return BuildResult containing the commit SHA hash, date method was called, 
 	 * text output from the build, and boolean success status. If repository could not be obtained,
 	 * this is indicated in the text output

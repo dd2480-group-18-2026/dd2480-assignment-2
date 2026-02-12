@@ -37,7 +37,12 @@ public class CiCoordinator implements Runnable {
         this.runner = runner;
         this.baseBuildUrl = baseBuildUrl;
     }
-
+    
+    /**
+     * This causes the coordinator to continually check for webhook events from GitHub
+     * and handle them by building, storing build result and creating a check on
+     * the commit on GitHub.
+     */
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             GitHubEvent event;
