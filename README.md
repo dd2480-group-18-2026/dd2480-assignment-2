@@ -1,5 +1,7 @@
 # DD2480 Assignment 2: Continuous Integration
 
+HEEEEEY!
+
 This project implements a small-scale Continuous Integration server written in Java.
 
 The system integrates with GitHub webhooks to compile and run tests on a project, and connects back to GitHub to display the result of the process in the form of a check.
