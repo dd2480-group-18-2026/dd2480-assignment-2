@@ -99,8 +99,7 @@ Test execution is done the same way as compilation, running "maven test" on a cl
 - Added GitHub checks integration with GitHubChecksClient.
 - Implemented CiCoordinator to tie the entire project together.
 - Reviewed some PRs.
-
-
+  
 ### Eliott (GitHub: Telmo26)
 - Setup the intial project structure.
 - Implemented the SQLite database utilities.
