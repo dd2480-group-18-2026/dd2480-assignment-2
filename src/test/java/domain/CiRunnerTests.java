@@ -29,12 +29,12 @@ public class CiRunnerTests {
 
 	private CiRunner runner;
 	final String sha = "a1b2c3d";
+	final Commit commit = new Commit(sha);
+	final Repository repo = new Repository("made/up/repo", "owner/name");
 
 	@BeforeEach
 	void setup() throws IOException {
-		runner = new CiRunner(
-			new Repository("made/up/repo"),
-			new Commit(sha),
+		runner = new CiRunner(	
 			mockProcessRunner
 		);
 	}
@@ -42,7 +42,7 @@ public class CiRunnerTests {
 	@Test 
 	void runBuild_succeeds_whenAllProcessesSucceed() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", true));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertTrue(result.success);
 	}
 
@@ -50,28 +50,28 @@ public class CiRunnerTests {
 	void runBuild_returnsOnlyBuildOutput_onSuccess() throws IOException, InterruptedException {
 		String output = "successful build";
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult(output, true));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertEquals(result.buildOutput, output);
 	}
 
 	@Test 
 	void runBuild_fails_whenAllProcessesFail() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertFalse(result.success);
 	}
 
 	@Test 
 	void runBuild_buildOutputContainsGetRepoFailure_onGetRepoFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertTrue(result.buildOutput.contains(CiRunner.GetRepoFailure));
 	}
 
 	@Test 
 	void runBuild_buildOutputContainsGetCommitFailure_onGetCommitFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertTrue(result.buildOutput.contains(CiRunner.GetCommitFailure));
 	}
 
@@ -79,21 +79,21 @@ public class CiRunnerTests {
 	void runBuild_buildOutputContainsOutput_onFailure() throws IOException, InterruptedException {
 		String output = "some output";
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult(output, false));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertTrue(result.buildOutput.contains(output));
 	}
 
 	@Test
 	void runBuild_returnsCorrectCommitHash_onSuccess() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", true));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertEquals(result.commitSHA, sha);
 	}
 
 	@Test
 	void runBuild_returnsCorrectCommitHash_onFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		assertEquals(result.commitSHA, sha);
 	}
 
@@ -101,7 +101,7 @@ public class CiRunnerTests {
 	void runBuild_returnsExpectedDate_onSuccess() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", true));
 		Date date = new Date();
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		long dateDelta = result.date.getTime() - date.getTime();
 		assertTrue(dateDelta < 100);
 	}
@@ -110,7 +110,7 @@ public class CiRunnerTests {
 	void runBuild_returnsExpectedDate_onFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
 		Date date = new Date();
-		BuildResult result = runner.runBuild();
+		BuildResult result = runner.runBuild(repo, commit);
 		long dateDelta = result.date.getTime() - date.getTime();
 		assertTrue(dateDelta < 100);
 	}
@@ -118,7 +118,7 @@ public class CiRunnerTests {
 	@Test 
 	void runCompile_succeeds_whenAllProcessesSucceed() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", true));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertTrue(result.success);
 	}
 
@@ -126,28 +126,28 @@ public class CiRunnerTests {
 	void runCompile_returnsOnlyBuildOutput_onSuccess() throws IOException, InterruptedException {
 		String output = "successful build";
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult(output, true));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertEquals(result.buildOutput, output);
 	}
 
 	@Test 
 	void runCompile_fails_whenAllProcessesFail() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertFalse(result.success);
 	}
 
 	@Test 
 	void runCompile_buildOutputContainsGetRepoFailure_onGetRepoFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertTrue(result.buildOutput.contains(CiRunner.GetRepoFailure));
 	}
 
 	@Test 
 	void runCompile_buildOutputContainsGetCommitFailure_onGetCommitFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertTrue(result.buildOutput.contains(CiRunner.GetCommitFailure));
 	}
 
@@ -155,21 +155,21 @@ public class CiRunnerTests {
 	void runCompile_buildOutputContainsOutput_onFailure() throws IOException, InterruptedException {
 		String output = "some output";
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult(output, false));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertTrue(result.buildOutput.contains(output));
 	}
 
 	@Test
 	void runCompile_returnsCorrectCommitHash_onSuccess() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", true));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertEquals(result.commitSHA, sha);
 	}
 
 	@Test
 	void runCompile_returnsCorrectCommitHash_onFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		assertEquals(result.commitSHA, sha);
 	}
 
@@ -177,7 +177,7 @@ public class CiRunnerTests {
 	void runCompile_returnsExpectedDate_onSuccess() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", true));
 		Date date = new Date();
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		long dateDelta = result.date.getTime() - date.getTime();
 		assertTrue(dateDelta < 100);
 	}
@@ -186,7 +186,7 @@ public class CiRunnerTests {
 	void runCompile_returnsExpectedDate_onFailure() throws IOException, InterruptedException {
 		when(mockProcessRunner.runProcess(any())).thenReturn(new ProcessResult("", false));
 		Date date = new Date();
-		BuildResult result = runner.runCompile();
+		BuildResult result = runner.runCompile(repo, commit);
 		long dateDelta = result.date.getTime() - date.getTime();
 		assertTrue(dateDelta < 100);
 	}
