@@ -41,7 +41,7 @@ public class RunServletTest {
                 "head_commit": {
                     "id": "ABC123"
                 },
-                "repositor": {
+                "repository": {
                     "clone_url": "someUrl",
                     "full_name": "owner/repoName"
                 }
