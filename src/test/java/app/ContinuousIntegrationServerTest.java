@@ -1,7 +1,10 @@
 package app;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import domain.CiRunner;
+import github.clients.GitHubChecksClient;
 import io.restassured.RestAssured;
 
 import static org.hamcrest.Matchers.containsString;
@@ -14,7 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
  */
 public class ContinuousIntegrationServerTest {
 
-    private static final int PORT = 8098;
+    private static final int PORT = 8080;
     private static final String WEBHOOK_HEADER_NAME = "X-GitHub-Event";
     private static ContinuousIntegrationServer server;
     private static final String validWebhookBody = """
@@ -23,7 +26,8 @@ public class ContinuousIntegrationServerTest {
                     "id": "ABC123"
                 },
                 "repository": {
-                    "clone_url": "someUrl"
+                    "clone_url": "someUrl",
+                    "full_name": "owner/repoName"
                 }
             }
             """;
@@ -33,14 +37,20 @@ public class ContinuousIntegrationServerTest {
                     "id": "ABC123"
                 },
                 "repositor": {
-                    "clone_url": "someUrl"
+                    "clone_url": "someUrl",
+                    "full_name": "owner/repoName"
                 }
             }
             """;
 
+    @Mock
+    private static GitHubChecksClient client;
+    @Mock
+    private static CiRunner runner;
+
     @BeforeAll
     private static void setup() throws Exception {
-        server = new ContinuousIntegrationServer(PORT);
+        server = new ContinuousIntegrationServer(PORT, client, runner, "url");
         server.start();
     }
 

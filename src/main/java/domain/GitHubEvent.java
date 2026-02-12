@@ -73,15 +73,25 @@ public class GitHubEvent {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Repository {
         private final String url;
+        private final String name;
+        private final String owner;
 
         /**
          * Creates a repository representation.
          *
          * @param url the repository clone URL
+         * @param fullName The full name of the repository in format <owner>/<name>
          */
         @JsonCreator
-        public Repository(@JsonProperty(value = "clone_url", required = true) String url) {
+        public Repository(
+            @JsonProperty(value = "clone_url", required = true) String url,
+            @JsonProperty(value = "full_name", required = true) String fullName
+        ) {
             this.url = url;
+
+            String[] fullNameSplit = fullName.split("/");
+            this.name = fullNameSplit[1];
+            this.owner = fullNameSplit[0];
         }
 
         /**
@@ -91,6 +101,14 @@ public class GitHubEvent {
          */
         public String getUrl() {
             return url;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getOwner() {
+            return owner;
         }
     }
 }

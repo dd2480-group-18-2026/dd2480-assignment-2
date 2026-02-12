@@ -1,9 +1,14 @@
 package app;
 import org.eclipse.jetty.server.Server;
 
+import domain.CiCoordinator;
+import domain.CiRunner;
 import domain.Storage;
+import github.clients.GitHubChecksClient;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 
@@ -24,17 +29,21 @@ public class ContinuousIntegrationServer {
      *
      * @param port the port to bind the server to
      */
-    public ContinuousIntegrationServer(int port) {
+    public ContinuousIntegrationServer(int port, GitHubChecksClient client, CiRunner runner, String baseBuildUrl) {
         server = new Server(port);
         appState = new AppState();
-    
-        ServletContextHandler context = new ServletContextHandler("/");
-
+        
         try {
             storage = new Storage("build_history.sqlite");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+
+        ExecutorService workers = Executors.newFixedThreadPool(1);
+        workers.submit(new CiCoordinator(appState.getQueue(), storage, client, runner ,baseBuildUrl));
+    
+        ServletContextHandler context = new ServletContextHandler("/");
+
 
         // Register servlets
         context.addServlet(RootServlet.class, "/");

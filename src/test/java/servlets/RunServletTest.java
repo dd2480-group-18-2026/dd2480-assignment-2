@@ -42,7 +42,8 @@ public class RunServletTest {
                     "id": "ABC123"
                 },
                 "repository": {
-                    "clone_url": "someUrl"
+                    "clone_url": "someUrl",
+                    "full_name": "owner/repoName"
                 }
             }
             """;
@@ -52,7 +53,8 @@ public class RunServletTest {
                     "id": "ABC123"
                 },
                 "repositor": {
-                    "clone_url": "someUrl"
+                    "clone_url": "someUrl",
+                    "full_name": "owner/repoName"
                 }
             }
             """;
@@ -97,6 +99,8 @@ public class RunServletTest {
         assertEquals(1, appState.getQueue().size());
         GitHubEvent event = appState.getQueue().peek();
         assertEquals("someUrl", event.getRepository().getUrl());
+        assertEquals("repoName", event.getRepository().getName());
+        assertEquals("owner", event.getRepository().getOwner());
         assertEquals("ABC123", event.getHeadCommit().getSha());
     }
 
