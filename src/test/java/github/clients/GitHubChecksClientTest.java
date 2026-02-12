@@ -107,7 +107,7 @@ public class GitHubChecksClientTest {
     void updateCheckRun_sendsRequestCorrectly() throws Exception {
         String path = OWNER + "/" + REPO + "/check-runs/" + RUN_ID;
 
-        checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID);
+        checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID, "buildoutput");
         RecordedRequest request = server.takeRequest();
         String body = request.getBody().readUtf8();
         JsonNode jsonBody = mapper.readTree(body);
@@ -120,11 +120,12 @@ public class GitHubChecksClientTest {
         assertEquals(DETAILS_URL, jsonBody.get("details_url").asText());
         assertEquals("success", jsonBody.get("conclusion").asText());
         assertEquals("completed", jsonBody.get("status").asText());
+		assertEquals("buildoutput", jsonBody.get("output").get("text").asText());
     }
     
     @Test
     void updateCheckRun_returnsSuccessfulResponseBody() throws Exception {
-        String body = checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID);
+        String body = checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID, "somebuildoutput");
         
         assertEquals(BODY, body);
     }
@@ -140,8 +141,7 @@ public class GitHubChecksClientTest {
         checksClient = new GitHubChecksClient(auth, url.toString());
         
         Exception exception = assertThrows(RuntimeException.class, () -> {
-
-            checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID);
+            checksClient.updateCheckRun(OWNER, REPO, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, DETAILS_URL, RUN_ID, "somebuildoutput");
         });
 
         assertEquals(errorBody, exception.getMessage());;

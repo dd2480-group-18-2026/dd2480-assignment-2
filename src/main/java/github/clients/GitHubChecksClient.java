@@ -82,6 +82,7 @@ public class GitHubChecksClient {
      * @param status
      * @param conclusion
      * @param checkRunId
+	 * @param buildOutput
      * @return JSON String representation of the response body.
      * @throws Exception
      */
@@ -91,14 +92,22 @@ public class GitHubChecksClient {
             CheckStatus status,
             CheckConclusion conclusion,
             String detailsUrl,
-            BigInteger checkRunId
+            BigInteger checkRunId,
+			String buildOutput
     ) throws Exception {
 
+		Map<String, Object> outputMap = Map.of(
+			"title", "Build info",
+			"summary", "Build " + status.toString(),
+			"text", buildOutput
+		);
         Map<String, Object> payload = Map.of(
                 "status", status.toString(),
                 "conclusion", conclusion.toString(),
-                "details_url", detailsUrl
+                "details_url", detailsUrl,
+				"output", outputMap
         );
+
         String url = baseUrl + owner + "/" + repo + "/check-runs/" + checkRunId;
         String token = auth.getInstallationToken();
         return patch(url, payload, token);
