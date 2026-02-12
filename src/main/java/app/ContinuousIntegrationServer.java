@@ -34,15 +34,15 @@ public class ContinuousIntegrationServer {
         appState = new AppState();
         
         try {
-            String dbPath = System.getenv().getOrDefault("BUILD_DB_PATH", "/tmp/build_history.sqlite");
-            storage = new Storage(dbPath);
-            System.out.println("Using build DB at: " + dbPath);
+            storage = new Storage("/tmp/build_history.sqlite");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
         ExecutorService workers = Executors.newFixedThreadPool(1);
+        System.out.println("Starting CiCoordinator worker thread...");
         workers.submit(new CiCoordinator(appState.getQueue(), storage, client, runner ,baseBuildUrl));
+        System.out.println("CiCoordinator submitted.");
     
         ServletContextHandler context = new ServletContextHandler("/");
 
