@@ -16,6 +16,8 @@ public class Main {
         String gitHubBaseUrl = System.getenv("GITHUB_CHECKS_BASE_URL");
         String baseBuildUrl = System.getenv("BASE_BUILD_URL");
 
+        System.out.println("Starting server on port " + port);
+
         GitHubChecksClient client = new GitHubChecksClient(appId, installationId, privateKeyPath, gitHubBaseUrl);
         CiRunner runner = new CiRunner(new ProcessRunner());
         ContinuousIntegrationServer server = new ContinuousIntegrationServer(port, client, runner, baseBuildUrl);

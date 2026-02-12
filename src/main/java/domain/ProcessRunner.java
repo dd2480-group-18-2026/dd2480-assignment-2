@@ -24,12 +24,14 @@ final public class ProcessRunner implements IProcessRunner {
 		Process process = builder.start();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-		int result = process.waitFor();
 		String line;
 
 		while((line = reader.readLine()) != null) {
 			outputString.append(line + "\n");
-		} 
+		}
+		
+		int result = process.waitFor();
+		
 		if (result == 0) {
 			success = true;
 		}
