@@ -15,6 +15,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Configuration
 
+The server currently only supports Linux.
+
 The server uses a .env file to load parameters and secrets. It is expected to be placed in the folder the project is started from. It must follow this format
 ```bash
 PORT=""
@@ -23,6 +25,8 @@ INSTALLATION_ID=""
 GITHUB_CHECKS_BASE_URL="https://api.github.com/repos/"
 PRIVATE_KEY_PATH=""
 ```
+
+These environment variables must be set locally for the program to run (but not for building/testing).
 
 The four last entries are configuration for the GitHub checks API. In order to use it, you need to create a GitHub App in your repository.
 
@@ -54,9 +58,35 @@ Then, you can start the container using
 docker run -p <HOST_PORT>:<CONTAINER_PORT> -v <ENV_FILE>:/app/.env <IMAGE_NAME>:latest
 ```
 
+## Accessing build information
+
+Build information is stored on a persistent SQLite database that is created and initialized by the server on startup. Of course, it needs to be mounted through Docker to persist through deployments.
+
+The URL for accessing all the build information is /builds. This returns a JSON containing the IDs of the builds, and the URLs for each of them.
+
+Each URL contains detailed information about a specific build such as the build date, the commit SHA, the build output and the success state of the build.
+
 ## Documentation
 
 The documentation is made using Javadoc, and is hosted on GitHub pages [here](https://dd2480-group-18-2026.github.io/dd2480-assignment-2/).
+
+## For grading
+
+There's a live instance of our server at https://dd2480-assignment-2.onrender.com/.
+
+### Compilation
+
+Compilation is done by cloning the repo to a temporary local folder, switching to the branch of the current commit, then invoking mvn test on this folder. 
+"Unit" testing compilation directly is not possible, as compiling projects is outside the scope of what a unit test does. However, we have tested the public
+compilation methods with mocking. The compilation working is also directly tested whenever the server runs.
+
+### Test execution
+
+Test execution is done the same way as compilation, running "maven test" on a cloned version of the repo at the given commit. The unit test are the same as for compilation, testing using mocking rather than directly running a set of tests. The test execution working is also directly tested whenever the server runs. 
+
+### Notification
+
+Notification is done by creating a check on the head commit of the push triggering the build. This is done using GitHub's Checks API. Once the build has failed or succeeded the check is updated to set the conclusion to either `failure` or `success` respectively and provides the output.
 
 ## Contributions
 
@@ -66,14 +96,12 @@ The documentation is made using Javadoc, and is hosted on GitHub pages [here](ht
 - Wrote Javadoc
 - Reviewed PR's
 
-
 ### Felix (GitHub: seahoers)
 - Added webhook request handling.
 - Added GitHub checks integration with GitHubChecksClient.
 - Implemented CiCoordinator to tie the entire project together.
 - Reviewed some PRs.
-
-
+  
 ### Eliott (GitHub: Telmo26)
 - Setup the intial project structure.
 - Implemented the SQLite database utilities.
@@ -83,4 +111,8 @@ The documentation is made using Javadoc, and is hosted on GitHub pages [here](ht
 
 ### Tim (GitHub: Uniquepotatoes)
 - Implemented pulling and building remote repositories and reporting the results
+- Implemented helper class for running processes
+- Wrote some Javadoc for the above
+- Contributed to README.
+- Updated GitHub checks integration to support sending the build output
 - Reviewed some PRs
