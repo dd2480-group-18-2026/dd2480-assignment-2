@@ -34,7 +34,9 @@ public class ContinuousIntegrationServer {
         appState = new AppState();
         
         try {
-            storage = new Storage("build_history.sqlite");
+            String dbPath = System.getenv().getOrDefault("BUILD_DB_PATH", "/tmp/build_history.sqlite");
+            storage = new Storage(dbPath);
+            System.out.println("Using build DB at: " + dbPath);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
