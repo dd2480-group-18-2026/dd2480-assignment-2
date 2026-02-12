@@ -109,7 +109,7 @@ public class GitHubChecksClient {
             .url(url)
             .post(RequestBody.create(
                 mapper.writeValueAsBytes(payload),
-                MediaType.parse("application/json")
+                MediaType.parse("application/json; charset=utf-8")
             ))
             .addHeader("Authorization", "token " + token)
             .addHeader("Accept", "application/vnd.github+json")
@@ -123,7 +123,7 @@ public class GitHubChecksClient {
             .url(url)
             .patch(RequestBody.create(
                 mapper.writeValueAsBytes(payload),
-                MediaType.parse("application/json")
+                MediaType.parse("application/json; charset=utf-8")
             ))
             .addHeader("Authorization", "token " + token)
             .addHeader("Accept", "application/vnd.github+json")
