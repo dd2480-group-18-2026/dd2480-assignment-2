@@ -112,6 +112,7 @@ Notification is done by creating a check on the head commit of the push triggeri
 ### Tim (GitHub: Uniquepotatoes)
 - Implemented pulling and building remote repositories and reporting the results
 - Implemented helper class for running processes
-- Contributed to README.
 - Wrote some Javadoc for the above
+- Contributed to README.
+- Updated GitHub checks integration to support sending the build output
 - Reviewed some PRs
