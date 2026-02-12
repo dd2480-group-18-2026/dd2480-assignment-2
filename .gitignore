@@ -1,2 +1,4 @@
 /target
 build_history.sqlite
+ci.env
+*.pem

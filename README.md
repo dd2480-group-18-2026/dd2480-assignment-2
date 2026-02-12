@@ -1,6 +1,6 @@
 # DD2480 Assignment 2: Continuous Integration
 
-HEEEEEY!
+HEEEEEY! 2
 
 This project implements a small-scale Continuous Integration server written in Java.
 
