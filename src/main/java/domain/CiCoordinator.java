@@ -56,23 +56,18 @@ public class CiCoordinator implements Runnable {
     private void handle(GitHubEvent event) throws Exception {
         String repoOwner = event.getRepository().getOwner();
         String repoName = event.getRepository().getName();
-        String repoUrl = event.getRepository().getUrl();
         String commitSha = event.getHeadCommit().getSha();
-        System.out.println("HERE 1");
+
         String repsonseBody = client.createCheckRun(repoOwner, repoName, "CI - Compile and Test", commitSha);
-        System.out.println("HERE");
         BigInteger runId = getRunId(repsonseBody);
-        System.out.println("HERE 2");
         BuildResult buildResult = runner.runBuild(event.getRepository(), event.getHeadCommit());
 
         storage.storeBuildResult(buildResult);
 
         if (buildResult.success) {
-            //update test checkRun success
             client.updateCheckRun(repoOwner, repoName, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, baseBuildUrl, runId);
     
         } else {
-            //update test checkRun failed
             client.updateCheckRun(repoOwner, repoName, CheckStatus.COMPLETED, CheckConclusion.FAILURE, baseBuildUrl, runId);
         }
     }
