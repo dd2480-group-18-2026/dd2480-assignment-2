@@ -86,6 +86,8 @@ Test execution is done the same way as compilation, running "maven test" on a cl
 
 ### Notification
 
+Notification is done by creating a check on the head commit of the push triggering the build. This is done using GitHub's Checks API. Once the build has failed or succeeded the check is updated to set the conclusion to either `failure` or `success` respectively and provides the output.
+
 ## Contributions
 
 ### August (GitHub: augustyvdal)
