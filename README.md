@@ -66,6 +66,8 @@ The URL for accessing all the build information is /builds. This returns a JSON 
 
 Each URL contains detailed information about a specific build such as the build date, the commit SHA, the build output and the success state of the build.
 
+In addition to the JSON API, the server also provides a simple web interface at `/builds-ui`. This page allows browsing the build history in a more user-friendly way, displaying the build ID, status and date in a table. Clicking a build shows its detailed output.
+
 ## Documentation
 
 The documentation is made using Javadoc, and is hosted on GitHub pages [here](https://dd2480-group-18-2026.github.io/dd2480-assignment-2/).
