@@ -63,8 +63,8 @@ public class CiCoordinator implements Runnable {
         String repoName = event.getRepository().getName();
         String commitSha = event.getHeadCommit().getSha();
 
-        String repsonseBody = client.createCheckRun(repoOwner, repoName, "CI - Compile and Test", commitSha);
-        BigInteger runId = getRunId(repsonseBody);
+        String responseBody = client.createCheckRun(repoOwner, repoName, "CI - Compile and Test", commitSha);
+        BigInteger runId = getRunId(responseBody);
         BuildResult buildResult = runner.runBuild(event.getRepository(), event.getHeadCommit());
 
         storage.storeBuildResult(buildResult);
