@@ -65,10 +65,10 @@ public class CiCoordinator implements Runnable {
         storage.storeBuildResult(buildResult);
 
         if (buildResult.success) {
-            client.updateCheckRun(repoOwner, repoName, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, baseBuildUrl, runId);
+            client.updateCheckRun(repoOwner, repoName, CheckStatus.COMPLETED, CheckConclusion.SUCCESS, baseBuildUrl, runId, buildResult.buildOutput);
     
         } else {
-            client.updateCheckRun(repoOwner, repoName, CheckStatus.COMPLETED, CheckConclusion.FAILURE, baseBuildUrl, runId);
+            client.updateCheckRun(repoOwner, repoName, CheckStatus.COMPLETED, CheckConclusion.FAILURE, baseBuildUrl, runId, buildResult.buildOutput);
         }
     }
     

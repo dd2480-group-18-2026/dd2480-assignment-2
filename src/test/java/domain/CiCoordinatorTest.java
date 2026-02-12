@@ -74,7 +74,7 @@ public class CiCoordinatorTest {
                     verify(client).createCheckRun("owner", "name", "CI - Compile and Test", "ABC123");
                     verify(runner).runBuild(event.getRepository(), event.getHeadCommit());
                     verify(storage).storeBuildResult(successfulBuildResult); 
-                    verify(client).updateCheckRun("owner", "name", CheckStatus.COMPLETED, CheckConclusion.SUCCESS, BASE_BUILD_URL, new BigInteger("1"));
+                    verify(client).updateCheckRun("owner", "name", CheckStatus.COMPLETED, CheckConclusion.SUCCESS, BASE_BUILD_URL, new BigInteger("1"), "something");
                 });
 
         thread.interrupt();
@@ -105,7 +105,7 @@ public class CiCoordinatorTest {
                     verify(client).createCheckRun("owner", "name", "CI - Compile and Test", "ABC123");
                     verify(runner).runBuild(event.getRepository(), event.getHeadCommit());
                     verify(storage).storeBuildResult(failedBuildResult); 
-                    verify(client).updateCheckRun("owner", "name", CheckStatus.COMPLETED, CheckConclusion.FAILURE, BASE_BUILD_URL, new BigInteger("1"));
+                    verify(client).updateCheckRun("owner", "name", CheckStatus.COMPLETED, CheckConclusion.FAILURE, BASE_BUILD_URL, new BigInteger("1"), "something");
                 });
 
         thread.interrupt();
