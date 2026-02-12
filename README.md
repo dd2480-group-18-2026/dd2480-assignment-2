@@ -15,6 +15,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Configuration
 
+The server currently only supports Linux.
+
 The server uses a .env file to load parameters and secrets. It is expected to be placed in the folder the project is started from. It must follow this format
 ```bash
 PORT=""
@@ -23,6 +25,8 @@ INSTALLATION_ID=""
 GITHUB_CHECKS_BASE_URL="https://api.github.com/repos/"
 PRIVATE_KEY_PATH=""
 ```
+
+These environment variables must be set locally for the program to run (but not for building/testing).
 
 The four last entries are configuration for the GitHub checks API. In order to use it, you need to create a GitHub App in your repository.
 
@@ -72,7 +76,13 @@ There's a live instance of our server at https://dd2480-assignment-2.onrender.co
 
 ### Compilation
 
+Compilation is done by cloning the repo to a temporary local folder, switching to the branch of the current commit, then invoking mvn test on this folder. 
+"Unit" testing compilation directly is not possible, as compiling projects is outside the scope of what a unit test does. However, we have tested the public
+compilation methods with mocking. The compilation working is also directly tested whenever the server runs.
+
 ### Test execution
+
+Test execution is done the same way as compilation, running "maven test" on a cloned version of the repo at the given commit. The unit test are the same as for compilation, testing using mocking rather than directly running a set of tests. The test execution working is also directly tested whenever the server runs. 
 
 ### Notification
 
@@ -101,5 +111,6 @@ There's a live instance of our server at https://dd2480-assignment-2.onrender.co
 ### Tim (GitHub: Uniquepotatoes)
 - Implemented pulling and building remote repositories and reporting the results
 - Implemented helper class for running processes
+- Contributed to README.
 - Wrote some Javadoc for the above
 - Reviewed some PRs
